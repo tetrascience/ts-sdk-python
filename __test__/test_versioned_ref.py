@@ -1,5 +1,5 @@
 import pytest
-import ts_sdk.task.__util_versioned_ref import VersionedRef
+from ts_sdk.task.__util_versioned_ref import VersionedRef
 
 
 def test_reconstructs_composite_ref():
