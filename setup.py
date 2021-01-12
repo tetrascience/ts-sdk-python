@@ -17,7 +17,10 @@ REQUIRES = [
     "jsonschema",
     "typing-extensions",
     "query-string",
-    "smart-open"
+    "smart-open",
+    "requests",
+    "importlib-metadata",
+    "urllib3"
     ]
 
 setup(
