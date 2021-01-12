@@ -5,7 +5,6 @@ import argparse
 import os
 
 from .__task_script_runner import run, test_run
-from ..taskdev import Context
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -40,6 +39,7 @@ if __name__ == '__main__':
     sys.path.append(params['func_dir'])
 
     if args.test:
+        from ..taskdev import Context
         params['context'] = Context()
         test_run(**params)
     else:
