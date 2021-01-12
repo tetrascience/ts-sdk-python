@@ -12,7 +12,7 @@ from ts_sdk.taskdev import Context, load_test_input, load_pipeline_config, check
 
 ctx = Context()
 load_pipeline_config(ctx, ...)
-load_pipeline_config(ctx, ...)
+load_test_input(ctx, ...)
 task_script_fn(input, ctx)
 check_test_output(...)
 ```
