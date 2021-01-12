@@ -1,13 +1,24 @@
 # ts-sdk-python
 A public repo for Tetrascience task script Python SDK
 
-## Usage
+## Local pipeline execution
 
-After installation can be invoked as following:
+WIP...
+
+## Unit tests
 
 ```
-python -m ts_sdk.task.run \
-  --func-dir=/abs/path/to/task-script \
-  --func=func-slug \
-  --test=1
+from ts_sdk.taskdev import Context, load_test_input, load_pipeline_config, check_test_output
+
+ctx = Context()
+load_pipeline_config(ctx, ...)
+load_pipeline_config(ctx, ...)
+task_script_fn(input, ctx)
+check_test_output(...)
+```
+
+## Dockerfile ENTRYPOINT
+
+```
+ENTRYPOINT [ "<python-bin>", "-u", "-m", "ts_sdk.task.run_reuse_loop" ]
 ```
