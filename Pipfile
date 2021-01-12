@@ -1,0 +1,27 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+snapshottest = "*"
+black = "*"
+pylint = "*"
+pytest = "*"
+pytest-cov = "*"
+
+[packages]
+setuptools = "*"
+requests = "*"
+boto3 = "*"
+jsonschema = "*"
+typing-extensions = "*"
+query-string = "*"
+smart-open = {extras = ["s3"], version = "*"}
+ts-sdk-python = {editable = true, path = "."}
+
+[requires]
+python_version = "3.7"
+
+[pipenv]
+allow_prereleases = true
