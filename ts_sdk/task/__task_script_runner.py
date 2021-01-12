@@ -332,6 +332,7 @@ def test_run(input, context_from_arg, func, correlation_id, func_dir,
             artifact_bucket_private, artifact_prefix_private, artifact_endpoint_private, command_endpoint,
             store_output=True, context = {}):
     log = Log(context_from_arg)
+    context.log = log
     func_module, func_name = resolve_func(func_dir, func)
     try:
         result = getattr(importlib.import_module(func_module), func_name)(input, context)

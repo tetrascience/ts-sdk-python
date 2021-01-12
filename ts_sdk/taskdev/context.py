@@ -31,6 +31,10 @@ class Context:
         self._storage = {}
         self._pipeline_config = {}
 
+    def __log(**args):
+        if self.log:
+            self.log(**args)
+
     @property
     def pipeline_config(self) -> t.Dict[str, str]:
         """Pipeline configuration including secrets."""
@@ -49,6 +53,7 @@ class Context:
         custom_tags: t.List[str] = None,
         source_type: str = None,
     ) -> File:
+        self.__log('context.write_file')
         if type(content) == str:
             content = content.encode('UTF-8')
         self._storage[file_name] = {
@@ -66,3 +71,31 @@ class Context:
             "bucket": "fake-unittest-bucket",
             "fileKey": file_name,
         }
+
+    def write_ids(
+        self,
+        content_obj,
+        file_suffix: str,
+        ids: t.Optional[str] = None,
+        custom_metadata: t.Mapping[str, str] = {},
+        custom_tags: t.Iterable[str] = [],
+        source_type: t.Optional[str] = None
+    ):
+        self.__log('context.write_ids')
+        return {}
+
+    def get_file_name(self, file):
+        return 'mocked_file_name'
+
+    def get_logger(self):
+        return self.log
+
+    def get_secret_config_value(self, secret_name, silent_on_error=True):
+        return 'mocked_secret_config_value'
+
+    def get_presigned_url(self, file, ttl_sec=300):
+        return 'mocked_presigned_url'
+
+    def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
+        self.__log('context.run_command')
+        return {'id': 'mocked_cmd_id'}

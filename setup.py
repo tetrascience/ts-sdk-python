@@ -17,7 +17,6 @@ REQUIRES = [
     "jsonschema",
     "typing-extensions",
     "query-string",
-    "smart-open",
     "smart-open"
     ]
 
