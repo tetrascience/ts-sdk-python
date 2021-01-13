@@ -1,10 +1,6 @@
 # ts-sdk-python
 A public repo for Tetrascience task script Python SDK
 
-## Local pipeline execution
-
-WIP...
-
 ## Unit tests
 
 ```
