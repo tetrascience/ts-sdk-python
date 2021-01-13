@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "df55d6ea53d920ef70ef3b9d1f2df2300afe3c150838ff7fb9194dc2616f5d04"
+            "sha256": "aeec56fb327f4e05a2eccd8d98ece45f71d2f0b61d93614f7266cc0d95735efe"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -105,10 +105,10 @@
         },
         "query-string": {
             "hashes": [
-                "sha256:1d4b7bade3b9ce6e4e4edcf40dca7c292296a53bb01a1cf47584d75d2ba38fa2"
+                "sha256:aca8d4daae179f9efd767bd7db36ff00614a1fe5797b3292f8487de0e7fc615c"
             ],
             "index": "pypi",
-            "version": "==2020.7.1"
+            "version": "==2020.12.3"
         },
         "requests": {
             "hashes": [
@@ -135,14 +135,16 @@
             "version": "==1.15.0"
         },
         "smart-open": {
-            "extras": [],
+            "extras": [
+                "s3"
+            ],
             "hashes": [
                 "sha256:7f4e85b71df5a3618f5447d0b417b7a3576308c839690a24a70338b8993684c3"
             ],
             "index": "pypi",
             "version": "==3.0.0"
         },
-        "ts-sdk-python": {
+        "ts-sdk": {
             "editable": true,
             "path": "."
         },
@@ -263,7 +265,7 @@
                 "sha256:fda29412a66099af6d6de0baa6bd7c52674de177ec2ad2630ca264142d69c6c7",
                 "sha256:ff1330e8bc996570221b450e2d539134baa9465f5cb98aff0e0f73f34172e0ae"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4.0'",
             "version": "==5.3.1"
         },
         "fastdiff": {
@@ -284,7 +286,7 @@
                 "sha256:c729845434366216d320e936b8ad6f9d681aab72dc7cbc2d51bedc3582f3ad1e",
                 "sha256:fff4f0c04e1825522ce6949973e83110a6e907750cd92d128b0d14aaaadbffdc"
             ],
-            "markers": "python_version >= '3.6' and python_version < '4'",
+            "markers": "python_version >= '3.6' and python_version < '4.0'",
             "version": "==5.7.0"
         },
         "lazy-object-proxy": {

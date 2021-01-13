@@ -1,4 +1,4 @@
-# ts-sdk-python
+# ts-sdk
 A public repo for Tetrascience task script Python SDK
 
 ## Unit tests
