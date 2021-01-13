@@ -6,3 +6,10 @@ install:
   - pipenv install --dev
 script:
   - pytest --cov=common --cov-branch
+deploy:
+  - provider: pypi
+    username: "__token__"
+    password: $PYPI_TOKEN
+    on:
+      branch: main
+      tags: true
