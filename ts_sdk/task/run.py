@@ -3,8 +3,9 @@ import json
 import importlib
 import argparse
 import os
+import base64
 
-from .__task_script_runner import run, test_run
+from .__task_script_runner import run
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -13,13 +14,10 @@ if __name__ == '__main__':
     parser.add_argument('--input', help='input string', default='')
     parser.add_argument('--context', help='context', default='')
     parser.add_argument('--func-dir', help='function dir', default='../func')
-    parser.add_argument('--test', help='test run', default='')
     args = parser.parse_args()
     params = {
-        'input': json.loads(base64.standard_b64decode(args.input)) \
-            if not args.test and args.input else {},
-        'context_from_arg': json.loads(base64.standard_b64decode(args.context)) \
-            if not args.test and args.context else {},
+        'input': json.loads(base64.standard_b64decode(args.input)),
+        'context_from_arg': json.loads(base64.standard_b64decode(args.context)),
         'func': args.func,
         'correlation_id': args.correlation_id,
         'func_dir': os.path.join(os.path.dirname(__file__), args.func_dir),
@@ -38,9 +36,4 @@ if __name__ == '__main__':
     }
     sys.path.append(params['func_dir'])
 
-    if args.test:
-        from ..taskdev import Context
-        params['context'] = Context()
-        test_run(**params)
-    else:
-        run(**params)
+    run(**params)

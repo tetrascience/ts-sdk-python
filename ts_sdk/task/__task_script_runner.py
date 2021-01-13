@@ -325,29 +325,3 @@ def run(input, context_from_arg, func, correlation_id, func_dir,
         }
     log.log({ 'level': 'debug', 'tag': LOG_TAG_SCRIPT_ENDED })
     return taskResult
-
-def test_run(input, context_from_arg, func, correlation_id, func_dir,
-            storage_type, storage_bucket, storage_file_key, storage_endpoint,
-            artifact_bucket, artifact_prefix, artifact_endpoint, artifact_file_key,
-            artifact_bucket_private, artifact_prefix_private, artifact_endpoint_private, command_endpoint,
-            store_output=True, context = {}):
-    log = Log(context_from_arg)
-    context.log = log
-    func_module, func_name = resolve_func(func_dir, func)
-    try:
-        result = getattr(importlib.import_module(func_module), func_name)(input, context)
-
-        taskResult = {
-          'status': 'completed',
-          'result': result or {}
-        }
-    except Exception as e:
-        log.log(e)
-
-        taskResult = {
-          'status': 'failed',
-          'result': {
-            'error': str(e)
-          }
-        }
-    log.log(taskResult)
