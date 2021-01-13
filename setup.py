@@ -35,15 +35,22 @@ REQUIRES = [
     "zipp>=3.3.1,<4"
     ]
 
+with open("README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name=NAME,
     version=VERSION,
-    description="",
-    author_email="",
-    url="",
+    description="Tetrascience Python SDK",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    author="tetrascience",
+    author_email="developers@tetrascience.com",
+    url="https://developers.tetrascience.com",
     keywords=[],
     install_requires=REQUIRES,
     packages=find_packages(),
+    package_data={'': ['LICENSE.txt', '*.json']},
     include_package_data=True,
-    long_description=""
+    python_requires='>=3.7'
 )
