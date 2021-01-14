@@ -41,5 +41,6 @@ setup(
     packages=find_packages(),
     package_data={'': ['*.txt', '*.json']},
     include_package_data=True,
-    python_requires='>=3.7'
+    python_requires='>=3.7',
+    license='Apache License 2.0'
 )
