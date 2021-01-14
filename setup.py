@@ -1,18 +1,7 @@
 # coding: utf-8
 
-import sys
 from setuptools import setup, find_packages
 
-NAME = "ts-sdk"
-VERSION = "1.0.0"
-# To install the library, run the following
-#
-# python setup.py install
-#
-# prerequisite: setuptools
-# http://pypi.python.org/pypi/setuptools
-
-# Should we import info from requirements.txt ???
 REQUIRES = [
     "attrs>=20.2.0,<21",
     "boto3>=1.16.3,<2",
@@ -39,8 +28,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name=NAME,
-    version=VERSION,
+    name="ts-sdk",
+    version="1.0.0",
     description="Tetrascience Python SDK",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -50,7 +39,7 @@ setup(
     keywords=[],
     install_requires=REQUIRES,
     packages=find_packages(),
-    package_data={'': ['LICENSE.txt', '*.json']},
+    package_data={'': ['*.txt', '*.json']},
     include_package_data=True,
     python_requires='>=3.7'
 )
