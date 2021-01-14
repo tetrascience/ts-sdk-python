@@ -1,5 +1,5 @@
 # ts-sdk
-Tetrascience Python SDK for task scripts build and test
+Tetrascience Python SDK for task scripts run and test
 
 ## Unit tests
 
@@ -18,5 +18,5 @@ WIP...
 ## Dockerfile ENTRYPOINT
 
 ```
-ENTRYPOINT [ "<python-bin>", "-u", "-m", "ts_sdk.task.run_reuse_loop" ]
+ENTRYPOINT [ "<python-bin>", "-u", "-m", "ts_sdk.task.run" ]
 ```
