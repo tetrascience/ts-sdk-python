@@ -39,7 +39,6 @@ def update_task_status(task, result):
     update_url = url + f'/task/{task_id}/update-status'
     req = urllib.request.Request(update_url, data, headers={'content-type': 'application/json'})
     urllib.request.urlopen(req, context=ssl._create_unverified_context())
-    update_health_check_flag()
   except urllib.error.HTTPError as e:
       print(f'HTTPError: {e.code} for {update_url}')
   except urllib.error.URLError as e:
@@ -49,7 +48,6 @@ def update_task_status(task, result):
 
 def generate_task_from_reponse(body):
   if body:
-    update_health_check_flag()
     data = body.get('data')
     return {
       'id': body.get('id'),
