@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$ref": "#/definitions/Config",
+
+  "definitions": {
+    "Config": {
+      "type": "object",
+      "properties": {
+        "language": { "type": "string", "const": "python" },
+        "functions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Function" },
+          "minItems": 1
+        }
+      },
+      "required": ["language", "functions"],
+      "additionalProperties": false
+    },
+
+    "Function": {
+      "type": "object",
+      "properties": {
+        "slug": { "type": "string" },
+        "function": { "type": "string" }
+      },
+      "required": ["slug", "function"],
+      "additionalProperties": false
+    }
+  }
+}

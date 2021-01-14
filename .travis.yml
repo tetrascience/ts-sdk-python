@@ -1,0 +1,25 @@
+language: python
+python:
+  - "3.7"
+install:
+  - pip install pipenv
+  - pipenv install --dev
+script:
+  - pytest --cov=common --cov-branch
+deploy:
+  - provider: pypi
+    username: "__token__"
+    password: $PYPI_TEST_TOKEN
+    distributions: "sdist bdist_wheel"
+    server: https://test.pypi.org/legacy/
+    skip_cleanup: true
+    on:
+      branch: test-deploy
+  - provider: pypi
+    username: "__token__"
+    password: $PYPI_TOKEN
+    distributions: "sdist bdist_wheel"
+    skip_cleanup: true
+    on:
+      branch: main
+      tags: true
