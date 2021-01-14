@@ -9,7 +9,7 @@ import traceback
 
 from datetime import datetime
 
-url = os.environ.get('ORCHESTRATOR_ENDPOINT') + '/v1'
+url = os.environ.get('ORCHESTRATOR_ENDPOINT')
 platform_props_hash = os.environ.get('PLATFORM_PROPS_HASH')
 task_group_hash = os.environ.get('TASK_GROUP_HASH')
 container_id = os.environ.get('CONTAINER_ID')
