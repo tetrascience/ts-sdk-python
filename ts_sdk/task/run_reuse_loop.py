@@ -17,7 +17,7 @@ def get_run_params(task):
     'context_from_arg': task.get('context'),
     'func': task.get('func'),
     'correlation_id': task.get('correlation_id'),
-    'func_dir': os.path.join(os.path.dirname(__file__), task.get('func_dir')),
+    'func_dir': task.get('func_dir'),
     'store_output': False,
     'storage_type': os.environ.get('TASK_STORAGE_TYPE'),
     'storage_bucket': os.environ.get('TASK_STORAGE_S3FILE_BUCKET'),

@@ -59,7 +59,7 @@ def generate_task_from_reponse(body):
       'func': data.get('func'),
       'workflow_id': data.get('workflowId'),
       'correlation_id': body.get('correlationId') or body.get('id'),
-      'func_dir': data.get('funcDir', '../func') or '../func'
+      'func_dir': data.get('funcDir', './func') or './func'
     }
   
   return {}

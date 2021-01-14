@@ -13,14 +13,14 @@ if __name__ == '__main__':
     parser.add_argument('--correlation-id', help='correlation id')
     parser.add_argument('--input', help='input string', default='')
     parser.add_argument('--context', help='context', default='')
-    parser.add_argument('--func-dir', help='function dir', default='../func')
+    parser.add_argument('--func-dir', help='function dir', default='./func')
     args = parser.parse_args()
     params = {
         'input': json.loads(base64.standard_b64decode(args.input)),
         'context_from_arg': json.loads(base64.standard_b64decode(args.context)),
         'func': args.func,
         'correlation_id': args.correlation_id,
-        'func_dir': os.path.join(os.path.dirname(__file__), args.func_dir),
+        'func_dir': args.func_dir,
         'storage_type': os.environ.get('TASK_STORAGE_TYPE'),
         'storage_bucket': os.environ.get('TASK_STORAGE_S3FILE_BUCKET'),
         'storage_file_key': os.environ.get('TASK_STORAGE_S3FILE_FILE_KEY'),
