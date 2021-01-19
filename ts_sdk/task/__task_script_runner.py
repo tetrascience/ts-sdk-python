@@ -104,6 +104,10 @@ class Context:
 
         return self.datalake.read_file(file, form)
 
+    @wrap_log('context.update_metadata_tags')
+    def update_metadata_tags(self, file, custom_meta, custom_tags):
+        return self.datalake.update_metadata_tags(file, custom_meta, custom_tags)
+
     @wrap_log('context.write_file')
     def write_file(
         self,
