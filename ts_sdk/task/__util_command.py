@@ -55,7 +55,7 @@ class Command:
                     command_status = command.get("status")
                     print('Current command status: ' + command_status)
                     if command_status == "SUCCESS":
-                        return command["responseBody"]["body"]["message"]
+                        return command.get("responseBody")
                     elif command_status == "CREATED" or command_status == "PENDING" or command_status == "PROCESSING":
                         continue
                     else:
