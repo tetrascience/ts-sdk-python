@@ -275,21 +275,32 @@ class Datalake:
         head = self.get_s3_head(file)
         current_meta = lowerMetadataKeys(head.get('Metadata'))
 
-        # TODO: validation (ascii, length)...
         if not FIELDS['FILE_ID'] in current_meta:
             raise Exception('no FILE_ID in meta!')
 
         if (not custom_meta) and (not custom_tags):
             raise Exception('No metadata or tags provided')
 
+        isASCII = lambda s: s and isinstance(s, str) and bool(re.match(r'^[\x00-\x7F]*$', s))
+        
         custom_meta_str = current_meta.get(FIELDS['CUSTOM_METADATA'], '') or ''
         current_custom_meta = query_string.parse(custom_meta_str)
         if custom_meta:
             custom_meta_merged = {**current_custom_meta, **custom_meta}
             custom_meta_merged = {k:v for k,v in custom_meta_merged.items() if v is not None}
+            for k,v in custom_meta_merged.items():
+                if not isASCII(k):
+                    raise Exception(f'Metadata key {k} contains non-ASCII character') 
+                if not isASCII(v):
+                    raise Exception(f'Metadata value {v} contains non-ASCII character')
             custom_meta_str = urlencode(custom_meta_merged)
 
-        custom_tags_str = ','.join(custom_tags) if custom_tags else current_meta[FIELDS['CUSTOM_TAGS']]
+        custom_tags_str = current_meta.get(FIELDS['CUSTOM_TAGS'], '')
+        if custom_tags:
+            for t in custom_tags:
+                if not isASCII(t):
+                    raise Exception(f'Tag {t} contains non-ASCII character') 
+            custom_tags_str = ','.join(custom_tags)
 
         params = {
             'Bucket': bucket,
@@ -307,6 +318,10 @@ class Datalake:
             'ServerSideEncryption': 'aws:kms',
             'SSEKMSKeyId': head.get('SSEKMSKeyId', None),
         }
+
+        if len(custom_meta_str) + len(custom_tags_str) >= 1024 * 1.5:
+            raise Exception('Metadata and tags length larger than 1.5KB') 
+
         params = {k:v for k,v in params.items() if v is not None}
         response = self.s3.copy_object(**params)
 
