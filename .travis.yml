@@ -5,7 +5,7 @@ install:
   - pip install pipenv
   - pipenv install --dev
 script:
-  - pytest --cov=common --cov-branch
+  - pytest --cov=ts_sdk --cov-branch
 deploy:
   - provider: pypi
     username: "__token__"

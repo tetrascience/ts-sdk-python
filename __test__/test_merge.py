@@ -1,5 +1,9 @@
+import sys
+import os
 import pytest
-from ts_sdk.task.__util_merge import merge_arrays, merge_objects
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "ts_sdk"))
+from task.__util_merge import merge_arrays, merge_objects
 
 
 def test_merge_objects_handles_valid_inputs():
