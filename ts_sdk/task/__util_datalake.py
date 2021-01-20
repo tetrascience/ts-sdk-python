@@ -300,12 +300,17 @@ class Datalake:
             for t in custom_tags:
                 if not isASCII(t):
                     raise Exception(f'Tag {t} contains non-ASCII character') 
-            custom_tags_str = ','.join(custom_tags)
+            new_custom_tags = list(set(custom_tags_str.split(',') + custom_tags))
+            new_custom_tags.sort()
+            custom_tags_str = ','.join(new_custom_tags)
 
+        if len(custom_meta_str) + len(custom_tags_str) >= 1024 * 1.5:
+            raise Exception('Metadata and tags length larger than 1.5KB') 
+        
         params = {
             'Bucket': bucket,
             'CopySource': f'/{bucket}/{file_key}',
-            'CopySourceIfUnmodifiedSince': head['LastModified'], # ensure no conflict
+            # 'CopySourceIfUnmodifiedSince': head['LastModified'], # ensure no conflict?
             'Key': file_key,
             'ContentEncoding': head.get('ContentEncoding', None),
             'ContentType': head['ContentType'],
@@ -318,9 +323,6 @@ class Datalake:
             'ServerSideEncryption': 'aws:kms',
             'SSEKMSKeyId': head.get('SSEKMSKeyId', None),
         }
-
-        if len(custom_meta_str) + len(custom_tags_str) >= 1024 * 1.5:
-            raise Exception('Metadata and tags length larger than 1.5KB') 
 
         params = {k:v for k,v in params.items() if v is not None}
         response = self.s3.copy_object(**params)
