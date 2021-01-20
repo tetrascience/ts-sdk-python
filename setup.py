@@ -1,5 +1,6 @@
 # coding: utf-8
 
+import os
 from setuptools import setup, find_packages
 
 REQUIRES = [
@@ -29,7 +30,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="ts-sdk",
-    version="1.0.6-rc",
+    version=os.environ.get('TRAVIS_TAG', 'local.dev'),
     description="Tetrascience Python SDK",
     long_description=long_description,
     long_description_content_type="text/markdown",
