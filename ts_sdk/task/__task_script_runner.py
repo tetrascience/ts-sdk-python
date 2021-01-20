@@ -9,6 +9,8 @@ import typing as t
 import typing_extensions as te
 import uuid
 
+from .types import FileCategory, File, ReadResult
+
 from .__util_storage import Storage
 from .__util_datalake import Datalake
 from .__util_log import Log
@@ -49,11 +51,15 @@ def wrap_log(func_name):
         return wrapper
     return return_wrapper
 
-def camel_to_snake(str):
+def camel_to_snake(str) -> str:
     return ''.join(['_'+i.lower() if i.isupper() else i for i in str]).lstrip('_')
 
 class Context:
-    input_file: object
+    """A context object that is passed into
+    the task script handler when running as part of a pipeline.
+    """
+
+    input_file: File
 
     def __init__(self, obj, datalake, ids_util, log, command):
         obj = { **obj, 'tmpDir': '/tmp' } # keys are later converted to snake case via "camel_to_snake"
@@ -70,7 +76,7 @@ class Context:
         self.command = command
 
     @wrap_log('context.read_file')
-    def read_file(self, file, form='body'):
+    def read_file(self, file: File, form='body') -> ReadResult:
         """Reads a file from the data lake and returns its contents in one of
         three forms.
 
@@ -105,7 +111,15 @@ class Context:
         return self.datalake.read_file(file, form)
 
     @wrap_log('context.update_metadata_tags')
-    def update_metadata_tags(self, file, custom_meta, custom_tags):
+    def update_metadata_tags(
+        self, 
+        file: File, 
+        custom_meta: t.Dict[str, str] = {}, 
+        custom_tags: t.Iterable[str] = []
+    ) -> File:
+        """Updates file's custom metadata and tags.
+        Use 'None' to remove a meta entry.
+        """
         return self.datalake.update_metadata_tags(file, custom_meta, custom_tags)
 
     @wrap_log('context.write_file')
@@ -113,12 +127,15 @@ class Context:
         self,
         content: t.Union[bytes, t.BinaryIO, str],
         file_name: str,
-        file_category: te.Literal['IDS', 'PROCESSED', 'TMP'],
+        file_category: FileCategory,
         ids: t.Optional[str] = None,
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
         source_type: t.Optional[str] = None,
-    ):
+    ) -> File:
+        """Writes an output file to the data lake
+        """
+
         raw_file = self.input_file
         file_meta = {
             # in case custom_metadata & custom_tags are undefined in raw_file meta
@@ -152,7 +169,7 @@ class Context:
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
         source_type: t.Optional[str] = None
-    ):
+    ) -> File:
         raw_file = self.input_file
         file_meta = {
             # in case custom_metadata & custom_tags are undefined in raw_file meta
@@ -176,16 +193,29 @@ class Context:
             source_type=source_type
         )
 
-    def get_file_name(self, file):
+    def get_file_name(self, file: File) -> str:
         return self.datalake.get_file_name(file)
 
     def get_logger(self):
+        """Returns the structured logger object.
+        The input should be an object (eg. containing a message field, among others).
+
+        ...     logger = context.get_logger()
+        ...     logger.log({
+        ...         "message": "Starting the main parser",
+        ...         "level": "info"
+        ...     })
+
+        """
         return self.log
 
-    def get_secret_config_value(self, secret_name, silent_on_error=True):
+    def get_secret_config_value(self, secret_name: str, silent_on_error=True) -> str:
+        """Returns the value of the secret.
+        If secret is missing, empty string or throws error, depending on the second argument.
+        """
         return get_secret_config_value(self._obj, secret_name, silent_on_error)
 
-    def get_presigned_url(self, file, ttl_sec=300):
+    def get_presigned_url(self, file: File, ttl_sec=300) -> str:
         return self.datalake.get_presigned_url(file, ttl_sec)
 
     def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
