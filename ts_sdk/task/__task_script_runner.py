@@ -112,9 +112,9 @@ class Context:
 
     @wrap_log('context.update_metadata_tags')
     def update_metadata_tags(
-        self, 
-        file: File, 
-        custom_meta: t.Dict[str, str] = {}, 
+        self,
+        file: File,
+        custom_meta: t.Dict[str, str] = {},
         custom_tags: t.Iterable[str] = []
     ) -> File:
         """Updates file's custom metadata and tags.
@@ -219,7 +219,7 @@ class Context:
         return self.datalake.get_presigned_url(file, ttl_sec)
 
     def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
-        return self.command.run_command(org_slug, target_id, action, metadata, payload, ttl_sec)
+        return self.command.run_command(self._obj, org_slug, target_id, action, metadata, payload, ttl_sec)
 
 def output_response(storage, response, correlation_id):
     storage.writeObject({**response, 'id': correlation_id})
