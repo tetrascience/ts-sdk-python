@@ -40,7 +40,7 @@ class Command:
 
         headers = { "x-org-slug": org_slug, "Content-Type": "application/json" }
 
-        response = requests.request("POST", url, headers=headers, data=json.dumps(command_create_payload))
+        response = requests.request("POST", url, headers=headers, data=json.dumps(command_create_payload), verify=False)
         if response.status_code == 200:
             print("Command successfully created")
             r = json.loads(response.text)
@@ -53,7 +53,7 @@ class Command:
             while time_elapsed <= ttl_sec:
                 time.sleep(5)
                 time_elapsed += 5
-                command_response = requests.request("GET", command_url, headers=command_headers)
+                command_response = requests.request("GET", command_url, headers=command_headers, verify=False)
                 print("Polling for command status")
                 if command_response.status_code == 200:
                     command = json.loads(command_response.text)
