@@ -59,7 +59,24 @@ class Context:
     the task script handler when running as part of a pipeline.
     """
 
+    org_slug: str
+    pipeline_id: str
+    workflow_id: str
+
+    master_script_namespace: str
+    master_script_slug: str
+    master_script_version: str
+
     input_file: File
+
+    created_at: str
+    task_id: str
+    task_created_at: str
+
+    pipeline_config: t.Dict[str, str]
+
+    tmp_dir: str = '/tmp'
+
 
     def __init__(self, obj, datalake, ids_util, log, command):
         obj = { **obj, 'tmpDir': '/tmp' } # keys are later converted to snake case via "camel_to_snake"
