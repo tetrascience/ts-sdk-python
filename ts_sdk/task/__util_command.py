@@ -8,7 +8,7 @@ class Command:
     def __init__(self, endpoint):
         self.endpoint = endpoint
 
-    def run_command(self, context, org_slug, target_id, action, metadata, payload, ttl_sec):
+    def run_command(self, context_data, org_slug, target_id, action, metadata, payload, ttl_sec):
         if org_slug is None:
             raise Exception('Param org_slug is missing')
         if target_id is None:
@@ -23,9 +23,9 @@ class Command:
         if metadata is None:
             metadata = {}
 
-        metadata["workflowId"] = context.get("workflowId")
-        metadata["pipelineId"] = context.get("pipelineId")
-        metadata["taskId"] = context.get("taskId")
+        metadata["workflowId"] = context_data.get("workflowId")
+        metadata["pipelineId"] = context_data.get("pipelineId")
+        metadata["taskId"] = context_data.get("taskId")
 
         url = self.endpoint + "/internal"
         date_now = datetime.now(timezone.utc) + timedelta(0, ttl_sec)
