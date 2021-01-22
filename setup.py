@@ -43,5 +43,10 @@ setup(
     package_data={'': ['*.txt', '*.json']},
     include_package_data=True,
     python_requires='>=3.7',
+    entry_points={
+        'console_scripts': {
+            'ts-tool = ts_sdk.cli.__main__:main'
+        }
+    },
     license='Apache License 2.0'
 )

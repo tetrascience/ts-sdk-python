@@ -4,8 +4,8 @@ import io
 import zipfile
 from time import sleep, time
 
-import __api as api
-from __utils import sizeof_fmt, zipdir
+from .__api import upload_artifact, get_task_script_build_info, get_task_script_build_logs
+from .__utils import sizeof_fmt, zipdir
 
 
 def put_cmd(args):
@@ -17,7 +17,7 @@ def put_cmd(args):
     zip_bytes = zip_buffer.getvalue()
 
     print(f'Uploading {sizeof_fmt(len(zip_bytes))}...', flush=True)
-    r = api.upload_artifact(args, zip_bytes)
+    r = upload_artifact(args, zip_bytes)
 
     print(json.dumps(r, indent=4, sort_keys=True), flush=True)
 
@@ -33,13 +33,13 @@ def put_cmd(args):
         prev_next_token = ''
 
         while True:
-            build_info = api.get_task_script_build_info(build_id)
+            build_info = get_task_script_build_info(build_id)
             build_complete = build_info.get('build', {}).get('buildComplete')
             build_status = build_info.get('build', {}).get('buildStatus')
 
             sleep(3)
 
-            logs_resp = api.get_task_script_build_logs(
+            logs_resp = get_task_script_build_logs(
                 build_id,
                 {'nextToken': prev_next_token}
             )
@@ -64,5 +64,3 @@ def put_cmd(args):
 
         if last_status == 'FAILED':
             raise Exception('Build failed.')
-
-    print('Done.', flush=True)

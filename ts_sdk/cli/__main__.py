@@ -1,15 +1,14 @@
 import argparse
 import re
 
-from __put_cmd import put_cmd
+from .__put_cmd import put_cmd
 
 def version_type(arg_value, pat=re.compile(r'^v')):
     if pat.match(arg_value):
         return f'{arg_value}'
     return f'v{arg_value}'
 
-
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('cmd', type=str, choices=['put'])
     parser.add_argument('type', type=str, choices=['ids', 'master-script', 'task-script'])
@@ -23,3 +22,7 @@ if __name__ == '__main__':
         put_cmd(args)
     else:
         raise Exception(f'Unsupported command {args.cmd}')
+
+
+if __name__ == '__main__':
+    main()

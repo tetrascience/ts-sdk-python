@@ -12,7 +12,7 @@ def ensure_env(name: str):
         raise Exception(f'{name} env is not set!')
     return v
 
-TS_AUTH = ensure_env('TS_AUTH')
+TS_AUTH = ensure_env('TS_AUTH_TOKEN')
 TS_ORG = ensure_env('TS_ORG')
 TS_API_URL = ensure_env('TS_API_URL')
 
