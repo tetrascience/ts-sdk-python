@@ -27,6 +27,22 @@ class Context:
     the task script handler when running as part of a pipeline.
     """
 
+    org_slug: str
+    pipeline_id: str
+    workflow_id: str
+
+    master_script_namespace: str
+    master_script_slug: str
+    master_script_version: str
+
+    input_file: File
+
+    created_at: str
+    task_id: str
+    task_created_at: str
+
+    tmp_dir: str = '/tmp'
+
     def __init__(self):
         self._storage = {}
         self._pipeline_config = {}

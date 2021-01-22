@@ -6,6 +6,7 @@
     "Protocol": {
       "type": "object",
       "properties": {
+        "protocolSchema": { "const": "v2" },
         "name": { "type": "string" },
         "description": { "type": "string" },
         "steps": {
@@ -18,30 +19,37 @@
           "items": { "$ref": "#/definitions/Config" }
         }
       },
-      "required": ["name", "description", "steps"],
+      "required": ["protocolSchema", "name", "description", "steps"],
       "additionalProperties": false
     },
 
     "Step": {
       "type": "object",
       "properties": {
-        "slug": { "type": "string" },
+        "slug": { "$ref": "#/definitions/Slug" },
+        "name": { "type": "string" },
         "description": { "type": "string" },
         "type": { "type": "string" },
-        "script": { "$ref": "#/definitions/Script" }
+        "script": { "$ref": "#/definitions/Script" },
+        "functionSlug": { "type": "string" },
+        "options": { "type": "object" }
       },
-      "required": ["slug", "description", "type", "script"],
+      "required": ["slug", "description", "type", "script", "functionSlug"],
       "additionalProperties": false
     },
 
     "Script": {
       "type": "object",
       "properties": {
+        "namespace": { "type": "string" },
         "slug": { "type": "string" },
-        "version": { "type": "string" }
+        "version": { "type": "string" },
+        "runnerType": { "type": "string", "enum": ["ecs", "windows-script"] },
+        "maxCount": { "type": "integer", "minimum": 0, "maximum": 50 },
+        "memoryInMB": { "type": "integer", "minimum": 0, "maximum": 8192 }
       },
-      "required": ["slug", "version"],
-      "additionalProperties": false
+      "required": ["namespace", "slug", "version"],
+      "additionalProperties": true
     },
 
     "Config": {
@@ -56,6 +64,11 @@
       },
       "required": ["slug", "name", "description", "type", "required", "step"],
       "additionalProperties": false
+    },
+
+    "Slug": {
+      "type": "string",
+      "pattern": "^[a-zA-Z][-a-zA-Z0-9]*$"
     }
   }
 }
