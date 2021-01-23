@@ -5,12 +5,12 @@ install:
   - pip install pipenv
   - pipenv install --dev
 script:
-  - pytest -s --cov=ts_sdk --cov-branch
+  - pipenv run pytest -s --cov=ts_sdk --cov-branch
   - ts-tool --help
   - ts-tool init -o org -m ms -t ts -f ./new-protocol
   - pushd .
   - cd ./new-protocol/task-script
-  - pytest -s
+  - pipenv run pytest -s
   - popd
   - rm -fr ./new-protocol
 deploy:
