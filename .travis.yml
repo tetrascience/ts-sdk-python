@@ -6,6 +6,10 @@ install:
   - pipenv install --dev
 script:
   - pytest -s --cov=ts_sdk --cov-branch
+  - ts-tool --help
+  - ts-tool init -o org -m ms -t ts -f ./new-protocol
+  - ls -la ./new-protocol/*
+  - rm -fr ./new-protocol
 deploy:
   - provider: pypi
     username: "__token__"

@@ -40,7 +40,7 @@ setup(
     keywords=[],
     install_requires=REQUIRES,
     packages=find_packages(),
-    package_data={'': ['*.txt', '*.json']},
+    package_data={'': ['*.txt', '*.json', '*.template', '*.md', '*.py']},
     include_package_data=True,
     python_requires='>=3.7',
     entry_points={

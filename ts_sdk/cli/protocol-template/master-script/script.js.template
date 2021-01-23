@@ -1,0 +1,13 @@
+async workflow => {
+  const inputFile = workflow.getContext('inputFile');
+  // get configuration and route configuration to the task scripts
+  const config = workflow.getContext('pipelineConfig');
+  const username = config['username'];
+  // step 1
+  const result = await workflow.runTask('{{ task_script_slug }}-step', {
+    input_file: inputFile,
+    username,
+    passwordKey: 'password',
+  });
+  return result;
+};

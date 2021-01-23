@@ -100,6 +100,16 @@ class Context:
         self.__log('context.write_ids')
         return {}
 
+    # always return true in local context
+    def validate_ids(
+        self,
+        data: dict,
+        namespace: str,
+        slug: str,
+        version: str
+    ) -> bool:
+        return True
+
     def get_file_name(self, file):
         return 'mocked_file_name'
 
