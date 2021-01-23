@@ -6,11 +6,28 @@
     "Config": {
       "type": "object",
       "properties": {
-        "language": { "type": "string", "const": "python" },
+        "language": {
+          "type": "string",
+          "enum": ["python"]
+        },
         "functions": {
           "type": "array",
           "items": { "$ref": "#/definitions/Function" },
           "minItems": 1
+        },
+        "runnerType": {
+          "type": "string",
+          "enum": ["ecs"]
+        },
+        "maxCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 50
+        },
+        "memoryInMB": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8192
         }
       },
       "required": ["language", "functions"],
