@@ -8,11 +8,12 @@ script:
   - pipenv run pytest -s --cov=ts_sdk --cov-branch
   - ts-tool --help
   - ts-tool init -o org -m ms -t ts -f ./new-protocol
-#  - pushd .
-#  - cd ./new-protocol/task-script
-#  - pipenv install --dev
-#  - pipenv run pytest -s
-#  - popd
+  - pushd .
+  - cd ./new-protocol/task-script
+  - pipenv install --dev
+  - pipenv install --dev ../..
+  - pipenv run pytest -s
+  - popd
   - rm -fr ./new-protocol
 deploy:
   - provider: pypi
