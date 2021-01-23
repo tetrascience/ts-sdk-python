@@ -10,6 +10,7 @@ script:
   - ts-tool init -o org -m ms -t ts -f ./new-protocol
   - pushd .
   - cd ./new-protocol/task-script
+  - pipenv install --dev
   - pipenv run pytest -s
   - popd
   - rm -fr ./new-protocol
