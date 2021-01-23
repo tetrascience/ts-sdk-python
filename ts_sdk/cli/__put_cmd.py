@@ -2,13 +2,32 @@ import json
 import os
 import io
 import zipfile
+import argparse
+import re
 from time import sleep, time
 
 from .__api import upload_artifact, get_task_script_build_info, get_task_script_build_logs
 from .__utils import sizeof_fmt, zipdir
 
+def put_cmd_args(parser: argparse.ArgumentParser):
+    parser.add_argument('type', type=str, choices=['ids', 'master-script', 'task-script'])
+    parser.add_argument('namespace', type=str)
+    parser.add_argument('slug', type=str)
+    parser.add_argument('version', type=__version_type)
+    parser.add_argument('folder', type=__folder_type, help='path to folder to be uploaded')
+    parser.set_defaults(func=__cmd)
 
-def put_cmd(args):
+def __version_type(arg_value, pat=re.compile(r'^v')):
+    if pat.match(arg_value):
+        return arg_value
+    return f'v{arg_value}'
+
+def __folder_type(arg_value):
+    if os.path.isdir(arg_value):
+        return arg_value
+    raise argparse.ArgumentTypeError('Not valid folder path provided!')
+
+def __cmd(args):
     print('Compressing...', flush=True)
     zip_buffer = io.BytesIO()
     zipf = zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False)
@@ -28,6 +47,7 @@ def put_cmd(args):
             raise Exception('No build ID found in upload response!')
 
         print('Build started', flush=True)
+        print("Note: A local script interruption doesn't stop a remote build!", flush=True)
 
         last_status = None
         prev_next_token = ''
@@ -60,7 +80,7 @@ def put_cmd(args):
                 last_status = build_status
                 break
 
-        print('')
+        print('', flush=True)
 
         if last_status == 'FAILED':
             raise Exception('Build failed.')
