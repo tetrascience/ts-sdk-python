@@ -1,3 +1,5 @@
+import io
+import tempfile
 import typing as t
 import typing_extensions as te
 
@@ -27,37 +29,33 @@ class Context:
     the task script handler when running as part of a pipeline.
     """
 
-    org_slug: str
-    pipeline_id: str
-    workflow_id: str
-
-    master_script_namespace: str
-    master_script_slug: str
-    master_script_version: str
-
-    input_file: File
-
-    created_at: str
-    task_id: str
-    task_created_at: str
-
-    tmp_dir: str = '/tmp'
-
-    def __init__(self):
+    def __init__(self, pipeline_config = {}):
         self._storage = {}
-        self._pipeline_config = {}
-
-    def __log(**args):
-        if self.log:
-            self.log(**args)
+        self._pipeline_config = pipeline_config
 
     @property
     def pipeline_config(self) -> t.Dict[str, str]:
         """Pipeline configuration including secrets."""
         return self._pipeline_config
 
-    def read_file(self, file: File) -> Result:
-        return self._storage[file["fileKey"]]
+    def read_file(self, file: File, form: str = 'body') -> Result:
+        if form == 'body':
+            return self._storage[file["fileKey"]]
+        elif form == 'file_obj':
+            result = self._storage[file["fileKey"]]
+            body = result['body']
+            buf = io.BytesIO()
+            buf.write(body)
+            buf.seek(0)
+            result['file_obj'] = buf
+            return result
+        elif form == 'download':
+            result = self._storage[file["fileKey"]]
+            with tempfile.NamedTemporaryFile(mode='wb', delete=False) as tf:
+                tf.write(result['body'])
+                result['download'] = tf.name
+            return result
+        raise Exception(f'Invalid form: {form}')
 
     def write_file(
         self,
@@ -69,7 +67,6 @@ class Context:
         custom_tags: t.List[str] = None,
         source_type: str = None,
     ) -> File:
-        self.__log('context.write_file')
         if type(content) == str:
             content = content.encode('UTF-8')
         self._storage[file_name] = {
@@ -88,18 +85,6 @@ class Context:
             "fileKey": file_name,
         }
 
-    def write_ids(
-        self,
-        content_obj,
-        file_suffix: str,
-        ids: t.Optional[str] = None,
-        custom_metadata: t.Mapping[str, str] = {},
-        custom_tags: t.Iterable[str] = [],
-        source_type: t.Optional[str] = None
-    ):
-        self.__log('context.write_ids')
-        return {}
-
     # always return true in local context
     def validate_ids(
         self,
@@ -110,18 +95,5 @@ class Context:
     ) -> bool:
         return True
 
-    def get_file_name(self, file):
-        return 'mocked_file_name'
-
-    def get_logger(self):
-        return self.log
-
-    def get_secret_config_value(self, secret_name, silent_on_error=True):
-        return 'mocked_secret_config_value'
-
-    def get_presigned_url(self, file, ttl_sec=300):
-        return 'mocked_presigned_url'
-
-    def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
-        self.__log('context.run_command')
-        return {'id': 'mocked_cmd_id'}
+    def get_secret_config_value(self, key):
+        return self._pipeline_config[key]
