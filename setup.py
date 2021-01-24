@@ -28,9 +28,14 @@ REQUIRES = [
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+if 'CI' in os.environ and 'TRAVIS_BUILD_ID' in os.environ:
+    version = f'dev-{os.environ.get('TRAVIS_BUILD_ID')}'
+else:
+    version = os.environ.get('TRAVIS_TAG', 'local.dev')
+
 setup(
     name="ts-sdk",
-    version=os.environ.get('TRAVIS_TAG', 'local.dev'),
+    version=version,
     description="Tetrascience Python SDK",
     long_description=long_description,
     long_description_content_type="text/markdown",
