@@ -28,7 +28,7 @@ REQUIRES = [
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
-if 'CI' in os.environ and 'TRAVIS_BUILD_ID' in os.environ:
+if 'CI' in os.environ and not 'TRAVIS_TAG' in os.environ:
     version = f'1.0.dev{os.environ.get("TRAVIS_BUILD_ID")}'
 else:
     version = os.environ.get('TRAVIS_TAG', 'local.dev')
