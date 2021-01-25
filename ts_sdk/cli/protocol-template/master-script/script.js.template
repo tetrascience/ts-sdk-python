@@ -1,0 +1,22 @@
+/**
+ * @param {Object} workflow
+ * @param {function(path: string)} workflow.getContext Returns context prop by path
+ * @param {function()} workflow.getProtocol Returns the current protocol
+ * @param {function(slug: string, input: Object, overwrite: Object = {}): Promise<*>} workflow.runTask Runs a task
+ * @param {Object} utils
+ * @param {{info: Function, warn: Function, error: Function}} utils.logger
+ * @returns {Promise<*>}
+ */
+async workflow => {
+  const inputFile = workflow.getContext('inputFile');
+  // get configuration and route configuration to the task scripts
+  const config = workflow.getContext('pipelineConfig');
+  const username = config['username'];
+  // step 1
+  const result = await workflow.runTask('{{ task_script_slug }}-step', {
+    input_file: inputFile,
+    username,
+    passwordKey: 'password',
+  });
+  return result;
+};

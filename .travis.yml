@@ -1,25 +1,45 @@
+git:
+  depth: 1
 language: python
 python:
   - "3.7"
 install:
   - pip install pipenv
   - pipenv install --dev
-script:
-  - pytest -s --cov=ts_sdk --cov-branch
-deploy:
-  - provider: pypi
-    username: "__token__"
-    password: $PYPI_TEST_TOKEN
-    distributions: "sdist bdist_wheel"
-    server: https://test.pypi.org/legacy/
-    skip_cleanup: true
-    on:
-      branch: test-deploy
-  - provider: pypi
-    username: "__token__"
-    password: $PYPI_TOKEN
-    distributions: "sdist bdist_wheel"
-    skip_cleanup: true
-    on:
-      branch: main
-      tags: true
+stages:
+  - test
+  - deploy
+jobs:
+  include:
+    - stage: test
+      name: "Unit tests"
+      script:
+        - pipenv run pytest -s --cov=ts_sdk --cov-branch
+    - stage: test
+      name: "ts-sdk cli tests"
+      script:
+        - ts-sdk --help
+        - ts-sdk init -o org -m ms -t ts -f ./new-protocol
+        - pushd .
+        - cd ./new-protocol/task-script
+        - pipenv install --dev
+        - pipenv install --dev ../..
+        - pipenv run pytest -s
+        - popd
+    - stage: deploy
+      script: skip
+      deploy:
+        - provider: pypi
+          username: "__token__"
+          password: $PYPI_TEST_TOKEN
+          distributions: "sdist bdist_wheel"
+          server: https://test.pypi.org/legacy/
+          on:
+            branch: test-deploy
+        - provider: pypi
+          username: "__token__"
+          password: $PYPI_TOKEN
+          distributions: "sdist bdist_wheel"
+          on:
+            branch: main
+            tags: true

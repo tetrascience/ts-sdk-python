@@ -1,15 +1,15 @@
-import argparse
+from argparse import ArgumentParser
 
 from .__put_cmd import put_cmd_args
 from .__init_cmd import init_cmd_args
 
 def main():
-    parser = argparse.ArgumentParser(prog='ts-tool')
+    parser = ArgumentParser(prog='ts-sdk')
     subparsers = parser.add_subparsers()
 
     init_cmd_args(subparsers.add_parser(
         'init', 
-        help='generate new project from a template'
+        help='initialize master and task script from a template'
         ))
 
     put_cmd_args(subparsers.add_parser(
@@ -18,7 +18,10 @@ def main():
         ))
 
     args = parser.parse_args()
-    args.func(args)
+    if hasattr(args, 'func'):
+        args.func(args)
+    else:
+        parser.print_help()
 
 if __name__ == '__main__':
     main()

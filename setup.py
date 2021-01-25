@@ -28,9 +28,14 @@ REQUIRES = [
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+if 'CI' in os.environ and not 'TRAVIS_TAG' in os.environ:
+    version = f'1.0.dev{os.environ.get("TRAVIS_BUILD_ID")}'
+else:
+    version = os.environ.get('TRAVIS_TAG', 'local.dev')
+
 setup(
     name="ts-sdk",
-    version=os.environ.get('TRAVIS_TAG', 'local.dev'),
+    version=version,
     description="Tetrascience Python SDK",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -40,12 +45,12 @@ setup(
     keywords=[],
     install_requires=REQUIRES,
     packages=find_packages(),
-    package_data={'': ['*.txt', '*.json']},
+    package_data={'': ['*.txt', '*.json', '*.template', '*.md', '*.py']},
     include_package_data=True,
     python_requires='>=3.7',
     entry_points={
         'console_scripts': {
-            'ts-tool = ts_sdk.cli.__main__:main'
+            'ts-sdk = ts_sdk.cli.__main__:main'
         }
     },
     license='Apache License 2.0'

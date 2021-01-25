@@ -1,0 +1,33 @@
+{
+  "protocolSchema": "v2",
+  "name": "{{ master_script_slug }}",
+  "description": "",
+  "steps": [
+    {
+      "slug": "{{ task_script_slug }}-step",
+      "description": "step description",
+      "type": "generator",
+      "script": {
+        "namespace": "private-{{ org }}",
+        "slug": "{{ task_script_slug }}",
+        "version": "v1.0.0"
+      },
+      "functionSlug": "main"
+    }
+  ],
+  "config": [{
+    "slug": "username",
+    "description": "description about the config",
+    "name": "user name",
+    "type": "string",
+    "required": true,
+    "step": "{{ task_script_slug }}-step"
+  }, {
+    "slug": "password",
+    "description": "description about the config",
+    "name": "password",
+    "type": "secret",
+    "required": true,
+    "step": "{{ task_script_slug }}-step"
+  }]
+}

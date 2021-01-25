@@ -1,0 +1,9 @@
+{
+  "language": "python",
+  "functions": [
+    {
+      "slug": "main",
+      "function": "main.main"
+    }
+  ]
+}

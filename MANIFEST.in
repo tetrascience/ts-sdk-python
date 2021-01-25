@@ -1,2 +1,2 @@
 include *.txt
-recursive-include ts_sdk *.json
+recursive-include ts_sdk *.json protocol-template/**/*
