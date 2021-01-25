@@ -16,10 +16,10 @@ jobs:
       script:
         - pipenv run pytest -s --cov=ts_sdk --cov-branch
     - stage: test
-      name: "ts-tool tests"
+      name: "ts-sdk cli tests"
       script:
-        - ts-tool --help
-        - ts-tool init -o org -m ms -t ts -f ./new-protocol
+        - ts-sdk --help
+        - ts-sdk init -o org -m ms -t ts -f ./new-protocol
         - pushd .
         - cd ./new-protocol/task-script
         - pipenv install --dev
