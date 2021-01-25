@@ -13,7 +13,7 @@ pip3 install ts-sdk
 
 ```
 ts-tool init -o <org> -m <master-script-slug> -t <task-script-slug> -f <protocol-folder>
-cd <folder>/task-script
+cd <protocol-folder>/task-script
 pipenv install --dev
 # task-script code modifications...
 pipenv run pytest
