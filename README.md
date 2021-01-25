@@ -4,7 +4,7 @@ Tetrascience Python SDK
 ## Install
 
 ```
-pipenv install ts-sdk --dev
+pip3 install ts-sdk --dev
 ```
 
 ## Usage
@@ -12,13 +12,13 @@ pipenv install ts-sdk --dev
 ### Init a new protocol
 
 ```
-pipenv run ts-tool init -o <org> -m <master-script-slugl> -t <task-script-slug> -f <folder>
+ts-tool init -o <org> -m <master-script-slugl> -t <task-script-slug> -f <folder>
 ```
 
 ### Upload artifact
 
 ```
-pipenv run ts-tool put <ids|c|task-script> <namespace> <slug> <version> <folder>
+ts-tool put <ids|master-script|task-script> <namespace> <slug> <version> <folder>
 ```
 
 ## Dockerfile ENTRYPOINT
