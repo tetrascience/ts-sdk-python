@@ -4,7 +4,7 @@ Tetrascience Python SDK
 ## Install
 
 ```
-pip3 install ts-sdk --dev
+pip3 install ts-sdk
 ```
 
 ## Usage
