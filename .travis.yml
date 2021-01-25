@@ -3,9 +3,6 @@ git:
 language: python
 python:
   - "3.7"
-install:
-  - pip install pipenv
-  - pipenv install --dev
 stages:
   - test
   - deploy
@@ -13,17 +10,23 @@ jobs:
   include:
     - stage: test
       name: "Unit tests"
+      install:
+        - pip install pipenv
+        - pipenv install --dev
       script:
         - pipenv run pytest -s --cov=ts_sdk --cov-branch
     - stage: test
       name: "ts-sdk cli tests"
+      install: skip
       script:
+        - python3 setup.py bdist_wheel
+        - pip install ./dist/*.whl
         - ts-sdk --help
         - ts-sdk init -o org -m ms -t ts -f ./new-protocol
         - pushd .
         - cd ./new-protocol/task-script
         - pipenv install --dev
-        - pipenv install --dev ../..
+        - pipenv install --dev ../../dist/*.whl
         - pipenv run pytest -s
         - popd
     - stage: deploy
