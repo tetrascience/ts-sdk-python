@@ -4,7 +4,7 @@ from .__put_cmd import put_cmd_args
 from .__init_cmd import init_cmd_args
 
 def main():
-    parser = ArgumentParser(prog='ts-tool')
+    parser = ArgumentParser(prog='ts-sdk')
     subparsers = parser.add_subparsers()
 
     init_cmd_args(subparsers.add_parser(
