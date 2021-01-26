@@ -132,7 +132,7 @@ class Datalake:
             head = self.s3.head_object(Bucket=bucket, Key=file_key, VersionId=file_version)
         else:
             head = self.s3.head_object(Bucket = bucket, Key = file_key)
-            
+
         return head
 
     def get_file_meta(self, file):
@@ -221,12 +221,12 @@ class Datalake:
             FIELDS['SOURCE_TYPE']: source_type,
             FIELDS['TRACE_ID']: getOrEmptyString(file_meta, FIELDS['TRACE_ID']),
 
-            # IDS
+            # IDS/TMP
             **({
                 FIELDS['IDS']: ids_obj.composite,
                 FIELDS['IDS_TYPE']: ids_obj.name,
                 FIELDS['IDS_VERSION']: ids_obj.version,
-            } if file_category == 'IDS' else {}),
+            } if file_category == 'IDS' or file_category == 'TMP' else {}),
 
             # from pipeline context
             FIELDS['INTEGRATION_ID']: getOrEmptyString(context, 'pipelineId'), # pipeline id
@@ -282,7 +282,7 @@ class Datalake:
             raise Exception('No metadata or tags provided')
 
         isASCII = lambda s: s and isinstance(s, str) and bool(re.match(r'^[\x00-\x7F]*$', s))
-        
+
         custom_meta_str = current_meta.get(FIELDS['CUSTOM_METADATA'], '') or ''
         current_custom_meta = query_string.parse(custom_meta_str)
         if custom_meta:
@@ -290,7 +290,7 @@ class Datalake:
             custom_meta_merged = {k:v for k,v in custom_meta_merged.items() if v is not None}
             for k,v in custom_meta_merged.items():
                 if not isASCII(k):
-                    raise Exception(f'Metadata key {k} contains non-ASCII character') 
+                    raise Exception(f'Metadata key {k} contains non-ASCII character')
                 if not isASCII(v):
                     raise Exception(f'Metadata value {v} contains non-ASCII character')
             custom_meta_str = urlencode(custom_meta_merged)
@@ -299,14 +299,14 @@ class Datalake:
         if custom_tags:
             for t in custom_tags:
                 if not isASCII(t):
-                    raise Exception(f'Tag {t} contains non-ASCII character') 
+                    raise Exception(f'Tag {t} contains non-ASCII character')
             new_custom_tags = list(set(custom_tags_str.split(',') + custom_tags))
             new_custom_tags.sort()
             custom_tags_str = ','.join(new_custom_tags)
 
         if len(custom_meta_str) + len(custom_tags_str) >= 1024 * 1.5:
-            raise Exception('Metadata and tags length larger than 1.5KB') 
-        
+            raise Exception('Metadata and tags length larger than 1.5KB')
+
         params = {
             'Bucket': bucket,
             'CopySource': f'/{bucket}/{file_key}',
@@ -336,10 +336,10 @@ class Datalake:
             'version': response.get('VersionId', '')
         }
 
-    def write_ids(self, context, content_obj, file_suffix, raw_file, file_meta, ids, source_type):
+    def write_ids(self, context, content_obj, file_suffix, raw_file, file_meta, ids, source_type, file_category):
         ids_obj = VersionedRef(composite=ids)
         file_name = f'{ids_obj.name}_{ids_obj.version}_{file_suffix}'
-        result = self.write_file(context, json.dumps(content_obj, indent=4), file_name, 'IDS', raw_file, file_meta, ids, source_type)
+        result = self.write_file(context, json.dumps(content_obj, indent=4), file_name, file_category, raw_file, file_meta, ids, source_type)
         return result
 
     def get_file_name(self, file):
@@ -357,7 +357,7 @@ class Datalake:
             kwargs = {'VersionId': file['version']}
         else:
             kwargs = {}
-        
+
         try:
             return self.s3.generate_presigned_url('get_object', Params={
                 'Bucket': bucket,
@@ -366,5 +366,5 @@ class Datalake:
             }, ExpiresIn=ttl_sec)
         except Error as e:
             print(e)
-        
+
         return None

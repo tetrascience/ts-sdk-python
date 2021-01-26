@@ -185,7 +185,8 @@ class Context:
         ids: t.Optional[str] = None,
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
-        source_type: t.Optional[str] = None
+        source_type: t.Optional[str] = None,
+        file_category: t.Optional[str] = 'IDS'
     ) -> File:
         raw_file = self.input_file
         file_meta = {
@@ -200,6 +201,8 @@ class Context:
         file_meta[FIELDS['CUSTOM_TAGS']] = merge_arrays(
             file_meta.get(FIELDS['CUSTOM_TAGS'], ''), custom_tags,
         )
+        if file_category != 'IDS' and file_category != 'TMP':
+            file_category = 'IDS'
         return self.datalake.write_ids(
             context=self._obj,
             content_obj=content_obj,
@@ -207,7 +210,8 @@ class Context:
             raw_file=raw_file,
             file_meta=file_meta,
             ids=ids,
-            source_type=source_type
+            source_type=source_type,
+            file_category=file_category
         )
 
     def get_file_name(self, file: File) -> str:
