@@ -89,7 +89,8 @@ class Context:
         ids: t.Optional[str] = None,
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
-        source_type: t.Optional[str] = None
+        source_type: t.Optional[str] = None,
+        file_category: t.Optional[str] = 'IDS'
     ) -> File:
         return {}
 
