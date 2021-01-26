@@ -73,27 +73,22 @@ class Context:
     task_id: str
     task_created_at: str
 
-    pipeline_config: t.Dict[str, str]
+    pipeline_config: t.Mapping[str, str]
 
     tmp_dir: str = '/tmp'
 
 
     def __init__(self, obj, datalake, ids_util, log, command):
-        obj = { **obj, 'tmpDir': '/tmp' } # keys are later converted to snake case via "camel_to_snake"
-        self._obj = obj
-        for key in obj:
-            setattr(self, camel_to_snake(key), obj[key])
-        for key in ids_util:
-            if callable(ids_util[key]):
-                setattr(self, key, wrap_log(f'context.{key}')(ids_util[key]))
-            else:
-                setattr(self, key, ids_util[key])
-        self.datalake = datalake
-        self.log = log
-        self.command = command
+        self._obj = { **obj, 'tmpDir': '/tmp' } # keys are later converted to snake case via "camel_to_snake"
+        for key in self._obj:
+            setattr(self, camel_to_snake(key), self._obj[key])
+        self._datalake = datalake
+        self._ids_util = ids_util
+        self._log = log
+        self._command = command
 
     @wrap_log('context.read_file')
-    def read_file(self, file: File, form='body') -> ReadResult:
+    def read_file(self, file: File, form: str = 'body') -> ReadResult:
         """Reads a file from the data lake and returns its contents in one of
         three forms.
 
@@ -125,19 +120,7 @@ class Context:
         ...     df = pd.read_sql_query('SELECT * FROM foo', con)
         """
 
-        return self.datalake.read_file(file, form)
-
-    @wrap_log('context.update_metadata_tags')
-    def update_metadata_tags(
-        self,
-        file: File,
-        custom_meta: t.Dict[str, str] = {},
-        custom_tags: t.Iterable[str] = []
-    ) -> File:
-        """Updates file's custom metadata and tags.
-        Use 'None' to remove a meta entry.
-        """
-        return self.datalake.update_metadata_tags(file, custom_meta, custom_tags)
+        return self._datalake.read_file(file, form)
 
     @wrap_log('context.write_file')
     def write_file(
@@ -158,7 +141,7 @@ class Context:
             # in case custom_metadata & custom_tags are undefined in raw_file meta
             FIELDS['CUSTOM_METADATA']: '',
             FIELDS['CUSTOM_TAGS']: '',
-            **self.datalake.get_file_meta(raw_file)
+            **self._datalake.get_file_meta(raw_file)
         }
         file_meta[FIELDS['CUSTOM_METADATA']] = merge_objects(
             file_meta.get(FIELDS['CUSTOM_METADATA'], ''), custom_metadata
@@ -166,7 +149,7 @@ class Context:
         file_meta[FIELDS['CUSTOM_TAGS']] = merge_arrays(
             file_meta.get(FIELDS['CUSTOM_TAGS'], ''), custom_tags,
         )
-        return self.datalake.write_file(
+        return self._datalake.write_file(
             context=self._obj,
             content=content,
             file_name=file_name,
@@ -176,6 +159,19 @@ class Context:
             ids=ids,
             source_type=source_type
         )
+
+    @wrap_log('context.get_ids')
+    def get_ids(namespace: str, slug: str, version: str):
+        """Returns IDS schema
+        """
+        return self._ids_util.get_ids(namespace, slug, version)
+
+    @wrap_log('context.validate_ids')
+    def validate_ids(data, namespace: str, slug: str, version: str):
+        """Checks validity of IDS content provided in `data`.
+        Throws an error if not valid.
+        """
+        return self._ids_util.validate_ids(data, namespace, slug, version)
 
     @wrap_log('context.write_ids')
     def write_ids(
@@ -188,12 +184,14 @@ class Context:
         source_type: t.Optional[str] = None,
         file_category: t.Optional[str] = 'IDS'
     ) -> File:
+        """Similar to write_file, but for IDS
+        """
         raw_file = self.input_file
         file_meta = {
             # in case custom_metadata & custom_tags are undefined in raw_file meta
             FIELDS['CUSTOM_METADATA']: '',
             FIELDS['CUSTOM_TAGS']: '',
-            **self.datalake.get_file_meta(raw_file)
+            **self._datalake.get_file_meta(raw_file)
         }
         file_meta[FIELDS['CUSTOM_METADATA']] = merge_objects(
             file_meta.get(FIELDS['CUSTOM_METADATA'], ''), custom_metadata
@@ -203,7 +201,7 @@ class Context:
         )
         if file_category != 'IDS' and file_category != 'TMP':
             file_category = 'IDS'
-        return self.datalake.write_ids(
+        return self._datalake.write_ids(
             context=self._obj,
             content_obj=content_obj,
             file_suffix=file_suffix,
@@ -215,7 +213,9 @@ class Context:
         )
 
     def get_file_name(self, file: File) -> str:
-        return self.datalake.get_file_name(file)
+        """Returns the filename of the file not downloading it locally
+        """
+        return self._datalake.get_file_name(file)
 
     def get_logger(self):
         """Returns the structured logger object.
@@ -228,7 +228,7 @@ class Context:
         ...     })
 
         """
-        return self.log
+        return self._log
 
     def get_secret_config_value(self, secret_name: str, silent_on_error=True) -> str:
         """Returns the value of the secret.
@@ -237,10 +237,28 @@ class Context:
         return get_secret_config_value(self._obj, secret_name, silent_on_error)
 
     def get_presigned_url(self, file: File, ttl_sec=300) -> str:
-        return self.datalake.get_presigned_url(file, ttl_sec)
+        """Returns a time-limited HTTPS URL that can be used to access the file.
+        If URL generation fails for any reason (except invalid value for ttl_sec parameter) `None` will be returned.
+        """
+        return self._datalake.get_presigned_url(file, ttl_sec)
+
+    @wrap_log('context.update_metadata_tags')
+    def update_metadata_tags(
+        self,
+        file: File,
+        custom_meta: t.Mapping[str, str] = {},
+        custom_tags: t.Iterable[str] = []
+    ) -> File:
+        """Updates file's custom metadata and tags.
+        Use 'None' to remove a meta entry.
+        New tags will be appended to existing ones.
+        """
+        return self._datalake.update_metadata_tags(file, custom_meta, custom_tags)
 
     def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
-        return self.command.run_command(self._obj, org_slug, target_id, action, metadata, payload, ttl_sec)
+        """Invokes remote command/action on target (agent or connector) and returns its response
+        """
+        return self._command.run_command(self._obj, org_slug, target_id, action, metadata, payload, ttl_sec)
 
 def output_response(storage, response, correlation_id):
     storage.writeObject({**response, 'id': correlation_id})
