@@ -3,25 +3,8 @@ import tempfile
 import typing as t
 import typing_extensions as te
 
-
-FileCategory = te.Literal["IDS", "RAW", "PROCESSED"]
-JSONType = t.Union[
-    str, int, float, bool, None, t.List["JSONType"], t.Dict[str, "JSONType"]
-]
-
-
-class File(te.TypedDict, total=False):
-    type: te.Literal["s3"]
-    bucket: str
-    fileKey: str
-    version: t.Optional[str]
-
-
-class Result(te.TypedDict):
-    metadata: t.Dict[str, str]
-    body: bytes
-    custom_metadata: t.Dict[str, str]
-    custom_tags: t.List[str]
+from ..task.types import File, FileCategory, ReadResult
+from ..task.__util_log import Log
 
 
 class Context:
@@ -32,13 +15,14 @@ class Context:
     def __init__(self, pipeline_config = {}):
         self._storage = {}
         self._pipeline_config = pipeline_config
+        self._log = Log({})
 
     @property
     def pipeline_config(self) -> t.Dict[str, str]:
         """Pipeline configuration including secrets."""
         return self._pipeline_config
 
-    def read_file(self, file: File, form: str = 'body') -> Result:
+    def read_file(self, file: File, form: str = 'body') -> ReadResult:
         if form == 'body':
             return self._storage[file["fileKey"]]
         elif form == 'file_obj':
@@ -85,6 +69,9 @@ class Context:
             "fileKey": file_name,
         }
 
+    def get_ids(namespace: str, slug: str, version: str):
+        return {}
+
     # always return true in local context
     def validate_ids(
         self,
@@ -95,5 +82,36 @@ class Context:
     ) -> bool:
         return True
 
-    def get_secret_config_value(self, key):
-        return self._pipeline_config[key]
+    def write_ids(
+        self,
+        content_obj,
+        file_suffix: str,
+        ids: t.Optional[str] = None,
+        custom_metadata: t.Mapping[str, str] = {},
+        custom_tags: t.Iterable[str] = [],
+        source_type: t.Optional[str] = None
+    ) -> File:
+        return {}
+
+    def get_file_name(self, file: File) -> str:
+        return ''
+
+    def get_logger(self):
+        return self._log
+
+    def get_secret_config_value(self, secret_name: str, silent_on_error=True) -> str:
+        return self._pipeline_config[secret_name]
+
+    def get_presigned_url(self, file: File, ttl_sec=300) -> str:
+        return ''
+
+    def update_metadata_tags(
+        self,
+        file: File,
+        custom_meta: t.Mapping[str, str] = {},
+        custom_tags: t.Iterable[str] = []
+    ) -> File:
+        return {}
+
+    def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
+        return {}
