@@ -9,13 +9,13 @@ def load_pipeline_config(context: Context, config: t.Dict[str, str]):
     context._pipeline_config = config
 
 
-def load_test_input(
+def load_test_file(
     context: Context, local_path: os.PathLike, datalake_path: str, **kwargs
 ) -> File:
     """Load a local file into the testing data lake, for use in an
     integration test.
 
-    >>> load_test_input(ctx, base_dir / 'setup.py', '/setup.py', file_category='RAW')
+    >>> load_test_file(ctx, base_dir / 'setup.py', '/setup.py', file_category='RAW')
     {'type': 's3', 'bucket': 'fake-unittest-bucket', 'fileKey': '/setup.py'}
     """
     with open(local_path) as f:
