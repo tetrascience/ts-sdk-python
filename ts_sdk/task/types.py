@@ -11,9 +11,9 @@ class File(te.TypedDict, total=False):
     version: t.Optional[str]
 
 class ReadResult(te.TypedDict):
-    metadata: t.Dict[str, str]
+    metadata: t.Mapping[str, str]
     body: t.Optional[bytes]
     file_obj: t.Optional[io.BufferedIOBase]
     download: t.Optional[str]
-    custom_metadata: t.Dict[str, str]
+    custom_metadata: t.Mapping[str, str]
     custom_tags: t.List[str]

@@ -1,7 +1,8 @@
-from .context import Context, File
 import typing as t
 import os
 
+from .context import Context
+from ..task.types import File
 
 def load_pipeline_config(context: Context, config: t.Dict[str, str]):
     """Load config into this context's pipeline config."""
