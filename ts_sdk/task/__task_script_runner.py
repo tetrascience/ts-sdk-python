@@ -81,7 +81,7 @@ class Context:
     def __init__(self, obj, datalake, ids_util, log, command):
         self._obj = { **obj, 'tmpDir': '/tmp' } # keys are later converted to snake case via "camel_to_snake"
         for key in self._obj:
-            setattr(self, camel_to_snake(key), obj[key])
+            setattr(self, camel_to_snake(key), self._obj[key])
         self._datalake = datalake
         self._ids_util = ids_util
         self._log = log
