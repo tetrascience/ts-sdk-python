@@ -168,7 +168,7 @@ class Context:
 
     @wrap_log('context.validate_ids')
     def validate_ids(data, namespace: str, slug: str, version: str):
-        """Checks validity of IDS content provided in `data`. 
+        """Checks validity of IDS content provided in `data`.
         Throws an error if not valid.
         """
         return self._ids_util.validate_ids(data, namespace, slug, version)
@@ -181,7 +181,8 @@ class Context:
         ids: t.Optional[str] = None,
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
-        source_type: t.Optional[str] = None
+        source_type: t.Optional[str] = None,
+        file_category: t.Optional[str] = 'IDS'
     ) -> File:
         """Similar to write_file, but for IDS
         """
@@ -198,6 +199,8 @@ class Context:
         file_meta[FIELDS['CUSTOM_TAGS']] = merge_arrays(
             file_meta.get(FIELDS['CUSTOM_TAGS'], ''), custom_tags,
         )
+        if file_category != 'IDS' and file_category != 'TMP':
+            file_category = 'IDS'
         return self._datalake.write_ids(
             context=self._obj,
             content_obj=content_obj,
@@ -205,7 +208,8 @@ class Context:
             raw_file=raw_file,
             file_meta=file_meta,
             ids=ids,
-            source_type=source_type
+            source_type=source_type,
+            file_category=file_category
         )
 
     def get_file_name(self, file: File) -> str:
@@ -233,7 +237,7 @@ class Context:
         return get_secret_config_value(self._obj, secret_name, silent_on_error)
 
     def get_presigned_url(self, file: File, ttl_sec=300) -> str:
-        """Returns a time-limited HTTPS URL that can be used to access the file. 
+        """Returns a time-limited HTTPS URL that can be used to access the file.
         If URL generation fails for any reason (except invalid value for ttl_sec parameter) `None` will be returned.
         """
         return self._datalake.get_presigned_url(file, ttl_sec)
