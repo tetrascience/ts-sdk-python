@@ -164,14 +164,14 @@ class Context:
     def get_ids(self, namespace: str, slug: str, version: str):
         """Returns IDS schema
         """
-        return self._ids_util.get_ids(namespace, slug, version)
+        return self._ids_util['get_ids'](namespace, slug, version)
 
     @wrap_log('context.validate_ids')
     def validate_ids(self, data, namespace: str, slug: str, version: str):
         """Checks validity of IDS content provided in `data`.
         Throws an error if not valid.
         """
-        return self._ids_util.validate_ids(data, namespace, slug, version)
+        return self._ids_util['validate_ids'](data, namespace, slug, version)
 
     @wrap_log('context.write_ids')
     def write_ids(
