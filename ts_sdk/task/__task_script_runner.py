@@ -307,6 +307,8 @@ def get_secret_config_value(context_from_arg, secret_name, silent_on_error=True)
 
   secret_ssm_name = pipeline_config.get(secret_full_key)
 
+  # TODO: remove EKS related code!
+
   k8s_secret_name_parts = secret_ssm_name.split('/')
   k8s_secret_name = k8s_secret_name_parts[len(k8s_secret_name_parts) - 1]
 
