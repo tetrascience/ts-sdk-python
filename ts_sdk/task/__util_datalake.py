@@ -226,7 +226,7 @@ class Datalake:
                 FIELDS['IDS']: ids_obj.composite,
                 FIELDS['IDS_TYPE']: ids_obj.name,
                 FIELDS['IDS_VERSION']: ids_obj.version,
-            } if file_category == 'IDS' or file_category == 'TMP' else {}),
+            } if ids is not None and (file_category == 'IDS' or file_category == 'TMP') else {}),
 
             # from pipeline context
             FIELDS['INTEGRATION_ID']: getOrEmptyString(context, 'pipelineId'), # pipeline id
