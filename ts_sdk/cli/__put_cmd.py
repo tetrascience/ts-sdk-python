@@ -15,6 +15,9 @@ def put_cmd_args(parser: argparse.ArgumentParser):
     parser.add_argument('slug', type=str)
     parser.add_argument('version', type=__version_type)
     parser.add_argument('folder', type=__folder_type, help='path to folder to be uploaded')
+    parser.add_argument(
+        '--force', '-f', action='store_true', help='force overwrite of an existing artifact'
+    )
     parser.set_defaults(func=__cmd)
 
 def __version_type(arg_value, pat=re.compile(r'^v')):

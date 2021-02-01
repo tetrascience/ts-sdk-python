@@ -32,11 +32,12 @@ def upload_artifact(cfg, artifact_bytes):
     r = requests.post(
         url, 
         headers=__get_headers(),
+        params={'force': 'true'} if cfg.force else {},
         data=artifact_bytes)
     if r.status_code < 400:
         return r.json()
     else:
-        raise Exception(f'Code: {r.status_code}, url: {url}')
+        raise Exception(f'Code: {r.status_code}, url: {r.url}')
 
 def get_task_script_build_info(id: str):
     url = f'{__get_env("TS_API_URL")}/artifact/builds/{id}'
@@ -46,7 +47,7 @@ def get_task_script_build_info(id: str):
     if r.status_code < 400:
         return r.json()
     else:
-        raise Exception(f'Code: {r.status_code}, url: {url}')
+        raise Exception(f'Code: {r.status_code}, url: {r.url}')
 
 def get_task_script_build_logs(id: str, params):
     url = f'{__get_env("TS_API_URL")}/artifact/build-logs/{id}'
@@ -58,4 +59,4 @@ def get_task_script_build_logs(id: str, params):
     if r.status_code < 400:
         return r.json()
     else:
-        raise Exception(f'Code: {r.status_code}, url: {url}')
+        raise Exception(f'Code: {r.status_code}, url: {r.url}')
