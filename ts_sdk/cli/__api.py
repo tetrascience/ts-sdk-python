@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import re
 import time
 import traceback
@@ -37,7 +38,8 @@ def upload_artifact(cfg, artifact_bytes):
     if r.status_code < 400:
         return r.json()
     else:
-        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}, reason: {r.reason}')
+        print(r.json(), file=sys.stderr, flush=True)
+        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
 
 def get_task_script_build_info(id: str):
     url = f'{__get_env("TS_API_URL")}/artifact/builds/{id}'
@@ -47,7 +49,8 @@ def get_task_script_build_info(id: str):
     if r.status_code < 400:
         return r.json()
     else:
-        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}, reason: {r.reason}')
+        print(r.json(), file=sys.stderr, flush=True)
+        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
 
 def get_task_script_build_logs(id: str, params):
     url = f'{__get_env("TS_API_URL")}/artifact/build-logs/{id}'
@@ -59,4 +62,5 @@ def get_task_script_build_logs(id: str, params):
     if r.status_code < 400:
         return r.json()
     else:
-        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}, reason: {r.reason}')
+        print(r.json(), file=sys.stderr, flush=True)
+        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
