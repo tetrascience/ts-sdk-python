@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import io
 import zipfile
 import argparse
@@ -39,7 +40,15 @@ def __cmd(args):
     zip_bytes = zip_buffer.getvalue()
 
     print(f'Uploading {sizeof_fmt(len(zip_bytes))}...', flush=True)
-    r = upload_artifact(args, zip_bytes)
+
+    r = {}
+
+    try:
+        r = upload_artifact(args, zip_bytes)
+    except Exception as ex:
+        print('Put command failed!', file=sys.stderr)
+        print(ex, file=sys.stderr)
+        sys.exit(1)
 
     print(json.dumps(r, indent=4, sort_keys=True), flush=True)
 
