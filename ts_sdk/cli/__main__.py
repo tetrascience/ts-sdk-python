@@ -2,8 +2,12 @@ from argparse import ArgumentParser
 
 from .__put_cmd import put_cmd_args
 from .__init_cmd import init_cmd_args
+from .__utils import check_update_required
+from .._version import __version__
 
 def main():
+    check_update_required(__version__)
+
     parser = ArgumentParser(prog='ts-sdk')
     subparsers = parser.add_subparsers()
 

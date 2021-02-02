@@ -31,6 +31,8 @@ jobs:
         - popd
     - stage: deploy
       script: skip
+      before_deploy:
+        - echo __version__ = \"$TRAVIS_TAG\" > ts_sdk/_version.py
       deploy:
         - provider: pypi
           username: "__token__"
