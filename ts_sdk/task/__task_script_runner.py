@@ -75,6 +75,8 @@ class Context:
 
     pipeline_config: t.Mapping[str, str]
 
+    platform_url: str
+
     tmp_dir: str = '/tmp'
 
 
