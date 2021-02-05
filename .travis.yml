@@ -39,12 +39,14 @@ jobs:
           password: $PYPI_TEST_TOKEN
           distributions: "sdist bdist_wheel"
           server: https://test.pypi.org/legacy/
+          skip_cleanup: true
           on:
             branch: test-deploy
         - provider: pypi
           username: "__token__"
           password: $PYPI_TOKEN
           distributions: "sdist bdist_wheel"
+          skip_cleanup: true
           on:
             branch: main
             tags: true
