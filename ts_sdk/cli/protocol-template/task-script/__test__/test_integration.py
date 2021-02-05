@@ -1,10 +1,8 @@
+import json
 import os
 import sys
-import json
-from ts_sdk.taskdev import Context, load_test_file, check_test_output
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from main import main
+from ts_sdk.taskdev import Context, load_test_file, check_test_output
 
 
 def test_basic(shared_datadir):
