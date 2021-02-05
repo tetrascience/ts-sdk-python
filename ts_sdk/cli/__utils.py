@@ -1,5 +1,46 @@
 import os
+from pathlib import Path
+import time
 import zipfile
+import requests
+import xml.etree.ElementTree as ET
+
+def get_latest_version():
+    try:
+        r = requests.get('https://pypi.org/rss/project/ts-sdk/releases.xml', timeout=5)
+        root = ET.fromstring(r.content)
+        return root.findall('channel/item/title')[0].text
+    except:
+        return '0.0.0'
+
+def check_update_required(current_version):
+    try:
+        latest_version_path = Path.home() / '.ts-sdk.latest'
+        latest_version = '0.0.0'
+
+        # refresh saved latest version once per day
+        if latest_version_path.is_file() and time.time() - latest_version_path.stat().st_mtime < 24 * 3600:
+            latest_version = latest_version_path.read_text()
+        else:
+            latest_version = get_latest_version()
+            latest_version_path.write_text(latest_version)
+
+        if latest_version and check_versions_for_update(current_version, latest_version):
+            print(f'\n\u001b[33mPlease upgrade ts-sdk (local: {current_version}, latest: {latest_version})\u001b[0m')
+            print('\u001b[33mUse: pip3 install ts-sdk --upgrade\u001b[0m\n')
+
+    except Exception as ex:
+        # print(ex)
+        pass
+
+def check_versions_for_update(current: str, latest: str):
+    current_major, current_minor, *rest = current.split('.')
+    latest_major, latest_minor, *rest = latest.split('.')
+    if int(current_major) < int(latest_major):
+        return True
+    if int(current_minor) < int(latest_minor):
+        return True
+    return False
 
 def sizeof_fmt(num, suffix='B'):
     for unit in ['','Ki','Mi','Gi','Ti']:
