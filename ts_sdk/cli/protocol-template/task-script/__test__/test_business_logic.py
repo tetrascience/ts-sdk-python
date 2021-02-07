@@ -1,8 +1,6 @@
+import json
 import os
 import sys
-import json
-
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from main import convert, decorate
 
 
@@ -15,4 +13,4 @@ def test_basic(shared_datadir):
 
 
 def test_decorate():
-    assert decorate({'a': '1'}, 'label') == {'a': '1', 'label': 'label'}
+    assert decorate({"a": "1"}, "label") == {"a": "1", "label": "label"}

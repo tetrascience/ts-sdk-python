@@ -27,7 +27,7 @@ jobs:
         - cd ./new-protocol/task-script
         - pipenv install --dev
         - pipenv install --dev ../../dist/*.whl
-        - pipenv run pytest -s
+        - pipenv run python -m pytest -s
         - popd
     - stage: deploy
       script: skip

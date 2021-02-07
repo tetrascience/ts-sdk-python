@@ -1,12 +1,11 @@
-import os
-import sys
 import json
 import jsonschema
+import os
+import sys
+import ts_sdk.schemas as s
 from importlib import import_module
 from pytest import fixture
-import ts_sdk.schemas as s
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 @fixture
 def config():

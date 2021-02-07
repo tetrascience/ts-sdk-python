@@ -19,9 +19,11 @@ def convert(input: t.BinaryIO) -> t.Any:
     """
     return {"a": "1", "label": "label"}
 
+
 def decorate(input_dict, label):
-    input_dict['label'] = label
+    input_dict["label"] = label
     return input_dict
+
 
 def main(input, context: ts.Context):
 
@@ -36,13 +38,12 @@ def main(input, context: ts.Context):
     ## Add your logic
     file = context.read_file(input["input_file"])
     input_dict = json.loads(file["body"])
-    
-    decorate(input_dict, "label")
-    
-    convert(io.BytesIO(file["body"]))
-    
 
-    # Validate against IDS 
+    decorate(input_dict, "label")
+
+    convert(io.BytesIO(file["body"]))
+
+    # Validate against IDS
     context.validate_ids(
         input_dict, 
         IDSNAMESPACE, 
@@ -55,7 +56,7 @@ def main(input, context: ts.Context):
         content=json.dumps(input_dict, indent=2, allow_nan=False),
         file_name="0.json",
         file_category="IDS",
-        ids="{}/{}:{}".format(IDSNAMESPACE, IDSTYPE, IDSVERSION),
+        ids=f"{IDSNAMESPACE}/{IDSTYPE}:{IDSVERSION}",
     )
 
     print(output)
