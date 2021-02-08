@@ -103,6 +103,9 @@ class Context:
     def get_secret_config_value(self, secret_name: str, silent_on_error=True) -> str:
         return self._pipeline_config[secret_name]
 
+    def resolve_secret(self, secret) -> str:
+        return secret
+
     def get_presigned_url(self, file: File, ttl_sec=300) -> str:
         return ''
 
