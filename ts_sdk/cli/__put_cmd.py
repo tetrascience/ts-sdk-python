@@ -6,7 +6,7 @@ import argparse
 import re
 from time import sleep, time
 
-from .__api import upload_artifact, get_task_script_build_info, get_task_script_build_logs
+from .__api import upload_artifact, get_task_script_build_info, get_task_script_build_logs, set_ignore_ssl
 from .__utils import sizeof_fmt, zipdir
 
 def put_cmd_args(parser: argparse.ArgumentParser):
@@ -17,6 +17,9 @@ def put_cmd_args(parser: argparse.ArgumentParser):
     parser.add_argument('folder', type=__folder_type, help='path to folder to be uploaded')
     parser.add_argument(
         '--force', '-f', action='store_true', help='force overwrite of an existing artifact'
+    )
+    parser.add_argument(
+        '--ignore-ssl', '-i', action='store_true', help='ignore the SSL certificate verification'
     )
     parser.set_defaults(func=__cmd)
 
@@ -31,6 +34,7 @@ def __folder_type(arg_value):
     raise argparse.ArgumentTypeError('Not valid folder path provided!')
 
 def __cmd(args):
+    set_ignore_ssl(args.ignore_ssl)
     print('Compressing...', flush=True)
     zip_buffer = io.BytesIO()
     zipf = zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False)

@@ -20,14 +20,12 @@
     "description": "description about the config",
     "name": "user name",
     "type": "string",
-    "required": true,
-    "step": "{{ task_script_slug }}-step"
+    "required": true
   }, {
     "slug": "password",
     "description": "description about the config",
     "name": "password",
     "type": "secret",
-    "required": true,
-    "step": "{{ task_script_slug }}-step"
+    "required": true
   }]
 }
