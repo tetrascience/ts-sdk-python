@@ -7,11 +7,13 @@ import traceback
 import requests
 from datetime import datetime
 
-type_to_url = {
+__type_to_url = {
   'ids': 'ids',
   'master-script': 'master-scripts',
   'task-script': 'task-scripts'
 }
+
+__ignore_ssl = False
 
 def __get_env(name: str):
     v = os.environ.get(name)
@@ -28,13 +30,19 @@ def __get_headers():
         headers['ts-auth-token'] = ts_auth
     return headers
 
+def set_ignore_ssl(v: bool):
+    global __ignore_ssl
+    __ignore_ssl = v
+
 def upload_artifact(cfg, artifact_bytes):
-    url = f'{__get_env("TS_API_URL")}/artifact/{type_to_url[cfg.type]}/{cfg.namespace}/{cfg.slug}/{cfg.version}'
+    url = f'{__get_env("TS_API_URL")}/artifact/{__type_to_url[cfg.type]}/{cfg.namespace}/{cfg.slug}/{cfg.version}'
     r = requests.post(
         url, 
         headers=__get_headers(),
         params={'force': 'true'} if cfg.force else {},
-        data=artifact_bytes)
+        data=artifact_bytes,
+        verify=not __ignore_ssl
+    )
     if r.status_code < 400:
         return r.json()
     else:
@@ -45,7 +53,9 @@ def get_task_script_build_info(id: str):
     url = f'{__get_env("TS_API_URL")}/artifact/builds/{id}'
     r = requests.get(
         url, 
-        headers=__get_headers())
+        headers=__get_headers(),
+        verify=not __ignore_ssl
+    )
     if r.status_code < 400:
         return r.json()
     else:
@@ -57,7 +67,8 @@ def get_task_script_build_logs(id: str, params):
     r = requests.get(
         url, 
         headers=__get_headers(),
-        params={k:v for k,v in params.items() if v is not None}
+        params={k:v for k,v in params.items() if v is not None},
+        verify=not __ignore_ssl
         )
     if r.status_code < 400:
         return r.json()
