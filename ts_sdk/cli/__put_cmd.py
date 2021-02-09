@@ -80,7 +80,7 @@ def __cmd(args):
                 print('.', end='', flush=True)
 
             for event in events:
-                msg_text = event.get('message', '')
+                msg_text = event.get('message', '').strip()
                 if msg_text:
                     print(msg_text, flush=True)
 
