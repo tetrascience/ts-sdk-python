@@ -62,7 +62,7 @@
         "required": { "type": "boolean" },
         "step": { "type": "string" }
       },
-      "required": ["slug", "name", "description", "type", "required", "step"],
+      "required": ["slug", "name", "description", "type", "required"],
       "additionalProperties": false
     },
 
