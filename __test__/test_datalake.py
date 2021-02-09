@@ -4,9 +4,8 @@ import datetime
 import pytest
 from unittest.mock import MagicMock
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "ts_sdk"))
-from task.__util_datalake import Datalake
-from task.__util_metadata import FIELDS
+from ts_sdk.task.__util_datalake import Datalake
+from ts_sdk.task.__util_metadata import FIELDS
 
 def test_datalake_update_metadata_tags():
     d = Datalake('http://localhost:4569/')

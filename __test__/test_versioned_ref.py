@@ -2,8 +2,7 @@ import sys
 import os
 import pytest
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "ts_sdk"))
-from task.__util_versioned_ref import VersionedRef
+from ts_sdk.task.__util_versioned_ref import VersionedRef
 
 
 def test_reconstructs_composite_ref():
