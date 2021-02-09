@@ -238,6 +238,16 @@ class Context:
         """
         return get_secret_config_value(self._obj, secret_name, silent_on_error)
 
+    def resolve_secret(self, secret) -> str:
+        """Returns the value of the secret.
+        """
+        if type(secret) is dict and 'ssm' in secret:
+            key = re.sub(r"^/[^/]*/[^/]*/org-secrets/", '', secret.ssm)
+            key = re.sub(r"[^a-z0-9]+", '_', key, flags=re.IGNORECASE)
+            secret_value = os.environ.get('SECRET_' + key)
+            return secret_value
+        return secret
+
     def get_presigned_url(self, file: File, ttl_sec=300) -> str:
         """Returns a time-limited HTTPS URL that can be used to access the file.
         If URL generation fails for any reason (except invalid value for ttl_sec parameter) `None` will be returned.
@@ -279,17 +289,6 @@ def resolve_func(func_dir, func_slug):
     func_module, _, func_name = function.rpartition('.')
     return func_module, func_name
 
-def resolve_secrets_in_pipeline_config(context_from_arg):
-    secrets = {}
-    pipeline_config = context_from_arg.get('pipelineConfig')
-
-    for key in pipeline_config:
-      if key.startswith('ts_secret_name_'):
-        secret_name = key.split("ts_secret_name_", 1)[1]
-        secrets[secret_name] = get_secret_config_value(context_from_arg, key, True)
-
-    return secrets
-
 def get_secret_config_value(context_from_arg, secret_name, silent_on_error=True):
   pipeline_config = context_from_arg.get('pipelineConfig')
 
@@ -307,26 +306,13 @@ def get_secret_config_value(context_from_arg, secret_name, silent_on_error=True)
     else:
       raise Exception(f'Secret {secret_full_key} not found in the workflow config.')
 
-  secret_ssm_name = pipeline_config.get(secret_full_key)
-
-  # TODO: remove EKS related code!
-
-  k8s_secret_name_parts = secret_ssm_name.split('/')
-  k8s_secret_name = k8s_secret_name_parts[len(k8s_secret_name_parts) - 1]
-
   try:
     if os.environ.get('TASK_SCRIPTS_CONTAINERS_MODE') == 'ecs':
       secret_value = os.environ.get('TS_SECRET_' + re.sub(r"[^a-z0-9]+", '_', secret_short_name, flags=re.IGNORECASE))
       if secret_value == None:
         raise Exception(f'Secret {secret_short_name} not found')
       return secret_value
-
-    # legacy EKS: read from mounted volume
-    secret_value_file = open(f'/etc/ts-secrets-volume/{k8s_secret_name}', 'r')
-    secret_value = secret_value_file.read()
-    secret_value_file.close()
-
-    return secret_value
+    raise Exception(f'Could not resolve secret value for  {secret_full_key}')
   except Exception as e:
     if silent_on_error:
       Context.log.log(e)
@@ -344,11 +330,6 @@ def run(input, context_from_arg, func, correlation_id, func_dir,
     log.log({ 'level': 'debug', 'tag': LOG_TAG_SCRIPT_STARTED })
     if (storage_type != 's3file'):
         raise Exception(f'Invalid storage type: {storage_type}')
-
-    context_from_arg['pipelineConfig'] = {
-      **context_from_arg.get('pipelineConfig'),
-      **resolve_secrets_in_pipeline_config(context_from_arg)
-    }
 
     # override print function with our own, which decorates with workflow id and task id
     __builtins__['print'] = lambda *args, flush=False: log.log(*args)

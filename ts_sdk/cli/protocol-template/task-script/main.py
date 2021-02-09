@@ -32,8 +32,7 @@ def main(input, context: ts.Context):
     IDSVERSION = "v1.0.0"
 
     username = input.get("username")
-    passwordKey = input.get("passwordKey")
-    password = context.get_secret_config_value(passwordKey)
+    password = context.resolve_secret(input.get("password"))
 
     ## Add your logic
     file = context.read_file(input["input_file"])
