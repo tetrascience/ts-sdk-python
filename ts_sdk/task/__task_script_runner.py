@@ -242,7 +242,7 @@ class Context:
         """Returns the value of the secret.
         """
         if type(secret) is dict and 'ssm' in secret:
-            key = re.sub(r"^/[^/]*/[^/]*/org-secrets/", '', secret.ssm)
+            key = re.sub(r"^/[^/]*/[^/]*/org-secrets/", '', secret['ssm'])
             key = re.sub(r"[^a-z0-9]+", '_', key, flags=re.IGNORECASE)
             secret_value = os.environ.get('SECRET_' + key)
             return secret_value
