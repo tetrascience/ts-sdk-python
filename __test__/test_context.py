@@ -4,8 +4,7 @@ import datetime
 import pytest
 from unittest.mock import MagicMock
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "ts_sdk"))
-from task.__task_script_runner import Context
+from ts_sdk.task.__task_script_runner import Context
 
 class LogMock:
     def log(self, data):
