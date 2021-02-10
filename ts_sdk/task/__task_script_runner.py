@@ -289,6 +289,15 @@ def resolve_func(func_dir, func_slug):
     func_module, _, func_name = function.rpartition('.')
     return func_module, func_name
 
+def resolve_secrets_in_pipeline_config(context_from_arg):
+    secrets = {}
+    pipeline_config = context_from_arg.get('pipelineConfig')
+    for key in pipeline_config:
+      if key.startswith('ts_secret_name_'):
+        secret_name = key.split("ts_secret_name_", 1)[1]
+        secrets[secret_name] = get_secret_config_value(context_from_arg, key, True)
+    return secrets
+
 def get_secret_config_value(context_from_arg, secret_name, silent_on_error=True):
   pipeline_config = context_from_arg.get('pipelineConfig')
 
@@ -330,6 +339,11 @@ def run(input, context_from_arg, func, correlation_id, func_dir,
     log.log({ 'level': 'debug', 'tag': LOG_TAG_SCRIPT_STARTED })
     if (storage_type != 's3file'):
         raise Exception(f'Invalid storage type: {storage_type}')
+
+    context_from_arg['pipelineConfig'] = {
+      **context_from_arg.get('pipelineConfig'),
+      **resolve_secrets_in_pipeline_config(context_from_arg)
+    }
 
     # override print function with our own, which decorates with workflow id and task id
     __builtins__['print'] = lambda *args, flush=False: log.log(*args)
