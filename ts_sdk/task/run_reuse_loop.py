@@ -61,7 +61,7 @@ def task_worker(task):
   try:
     last_run['result'] = run(**run_params)
   except:
-    e = sys.exc_info()[0]
+    e = sys.exc_info()[1]
     log.log(log.generate_error(e))
     last_run['error'] = traceback.format_exc()
   sys.path.remove(run_params.get('func_dir'))
