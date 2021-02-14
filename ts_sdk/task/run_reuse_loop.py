@@ -60,7 +60,8 @@ def task_worker(task):
   sys.path.append(run_params.get('func_dir'))
   try:
     last_run['result'] = run(**run_params)
-  except Exception as e:
+  except:
+    e = sys.exc_info()[1]
     log.log(log.generate_error(e))
     last_run['error'] = traceback.format_exc()
   sys.path.remove(run_params.get('func_dir'))
