@@ -6,10 +6,9 @@ from setuptools import setup, find_packages
 REQUIRES = [
     "boto3>=1.16.3,<2",
     "botocore>=1.19.3,<2",
-    "importlib-metadata>=2.0.0,<3",
     "jsonschema>=3.2.0,<4",
     "query-string>=2020.7.1,<2021",
-    "requests>=2.24.0,<3",
+    "requests>=2.22.0,<3",
     "smart-open[s3]>=3.0.0,<4",
     "typing-extensions>=3.7.4,<4"
     ]
