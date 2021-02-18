@@ -5,7 +5,7 @@ import typing_extensions as te
 FileCategory = te.Literal["IDS", "RAW", "PROCESSED", "TMP"]
 
 class File(te.TypedDict, total=False):
-    type: te.Literal["s3"]
+    type: te.Literal["s3file"]
     bucket: str
     fileKey: str
     version: t.Optional[str]

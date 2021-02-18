@@ -64,7 +64,7 @@ class Context:
             "custom_tags": custom_tags,
         }
         return {
-            "type": "s3",
+            "type": "s3file",
             "bucket": "fake-unittest-bucket",
             "fileKey": file_name,
         }

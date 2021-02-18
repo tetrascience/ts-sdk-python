@@ -10,6 +10,7 @@ from datetime import datetime
 __type_to_url = {
   'ids': 'ids',
   'master-script': 'master-scripts',
+  'protocol': 'master-scripts',
   'task-script': 'task-scripts'
 }
 

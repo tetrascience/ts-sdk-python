@@ -15,7 +15,7 @@ def config():
 
 @fixture
 def protocol():
-    with open("../master-script/protocol.json") as f:
+    with open("../protocol/protocol.json") as f:
         return json.load(f)
 
 

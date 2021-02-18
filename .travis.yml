@@ -22,7 +22,7 @@ jobs:
         - python3 setup.py bdist_wheel
         - pip install ./dist/*.whl
         - ts-sdk --help
-        - ts-sdk init -o org -m ms -t ts -f ./new-protocol
+        - ts-sdk init -o org -p test-protocol -t ts-slug -f ./new-protocol
         - pushd .
         - cd ./new-protocol/task-script
         - pipenv install --dev
