@@ -12,7 +12,7 @@ pip3 install ts-sdk
 ### Init a new protocol
 
 ```
-ts-sdk init -o <org> -p <protocol-name> -t <task-script-slug> -f <protocol-folder>
+ts-sdk init -o <org> -p <protocol-slug> -t <task-script-slug> -f <protocol-folder>
 cd <protocol-folder>/task-script
 pipenv install --dev
 # task-script code modifications...
