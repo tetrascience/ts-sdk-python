@@ -10,7 +10,7 @@ from .__api import upload_artifact, get_task_script_build_info, get_task_script_
 from .__utils import sizeof_fmt, zipdir
 
 def put_cmd_args(parser: argparse.ArgumentParser):
-    parser.add_argument('type', type=str, choices=['ids', 'master-script', 'task-script'])
+    parser.add_argument('type', type=str, choices=['ids', 'protocol', 'master-script', 'task-script'], help='artifact type')
     parser.add_argument('namespace', type=str)
     parser.add_argument('slug', type=str)
     parser.add_argument('version', type=__version_type)

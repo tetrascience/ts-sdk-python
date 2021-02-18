@@ -5,7 +5,7 @@ import shutil
 
 def init_cmd_args(parser: ArgumentParser):
     parser.add_argument(
-        "--master_script_slug", "-m", type=str, required=True, help="Slug of the master script"
+        "--protocol_name", "-p", type=str, required=True, help="Name of the protocol"
     )
     parser.add_argument(
         "--task_script_slug", "-t", type=str, required=True, help="Slug of the task script"
@@ -44,7 +44,7 @@ def __cmd(args):
     for p in Path(new_folder_path).glob("**/*.template"):
         text = p.read_text()
         text = text.replace("{{ org }}", args.org)
-        text = text.replace("{{ master_script_slug }}", args.master_script_slug)
+        text = text.replace("{{ protocol_name }}", args.protocol_name)
         text = text.replace("{{ task_script_slug }}", args.task_script_slug)
 
         dest = p.with_name(p.stem)

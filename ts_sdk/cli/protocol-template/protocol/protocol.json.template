@@ -1,6 +1,6 @@
 {
   "protocolSchema": "v2",
-  "name": "{{ master_script_slug }}",
+  "name": "{{ protocol_name }}",
   "description": "",
   "steps": [
     {
