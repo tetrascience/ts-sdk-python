@@ -190,7 +190,7 @@ class Datalake:
             raise Exception(f'ids can not be None when file_category is IDS')
         ids_obj = VersionedRef(composite=ids)
         pattern = '(.*?)/(.*?)/(?:.*?)/(.*)'
-        match = re.match(pattern, raw_file_key)
+        match = re.match(pattern, raw_file_key, flags=re.DOTALL)
         if not match:
             raise Exception(f'Raw file key {raw_file_key} does not match "{pattern}"')
 
