@@ -32,3 +32,27 @@ def test_datalake_update_metadata_tags():
     assert kwargs['CopySource'] == '/test-bucket/test/file/key'
     assert kwargs['Metadata'][FIELDS['CUSTOM_METADATA']] == 'meta_k_2=meta_v_2&meta_k_3=meta_v_3&meta_k_4=meta_v_4'
     assert kwargs['Metadata'][FIELDS['CUSTOM_TAGS']] == 'tag1,tag2,tag3,tag4'
+
+def test_datalake_update_metadata_tags_if_empty():
+    d = Datalake('http://localhost:4569/')
+    d.s3.head_object = MagicMock(return_value={
+        'Metadata': {
+            FIELDS['FILE_ID']: 'file_id'
+        },
+        'LastModified': datetime.datetime(2021, 1, 1),
+        'ContentType': 'text/plain'
+    })
+    d.s3.copy_object = MagicMock(return_value={})
+    f = {
+        'bucket': 'test-bucket',
+        'fileKey': 'test/file/key'
+    }
+    meta = {'meta_k_3': 'meta_v_3', 'meta_k_4': 'meta_v_4', 'meta_k_1': None}
+    tags = ['tag3', 'tag4', 'tag4']
+    d.update_metadata_tags(f, meta, tags)
+
+    d.s3.copy_object.assert_called_once()
+    args, kwargs = d.s3.copy_object.call_args
+    assert kwargs['CopySource'] == '/test-bucket/test/file/key'
+    assert kwargs['Metadata'][FIELDS['CUSTOM_METADATA']] == 'meta_k_3=meta_v_3&meta_k_4=meta_v_4'
+    assert kwargs['Metadata'][FIELDS['CUSTOM_TAGS']] == 'tag3,tag4'

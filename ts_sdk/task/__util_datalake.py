@@ -302,7 +302,7 @@ class Datalake:
                     raise Exception(f'Tag {t} contains non-ASCII character')
             new_custom_tags = list(set(custom_tags_str.split(',') + custom_tags))
             new_custom_tags.sort()
-            custom_tags_str = ','.join(new_custom_tags)
+            custom_tags_str = ','.join([t for t in new_custom_tags if t])
 
         if len(custom_meta_str) + len(custom_tags_str) >= 1024 * 1.5:
             raise Exception('Metadata and tags length larger than 1.5KB')
