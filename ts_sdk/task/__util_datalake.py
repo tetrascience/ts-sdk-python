@@ -307,6 +307,8 @@ class Datalake:
         if len(custom_meta_str) + len(custom_tags_str) >= 1024 * 1.5:
             raise Exception('Metadata and tags length larger than 1.5KB')
 
+        file_id = str(uuid4())
+
         params = {
             'Bucket': bucket,
             'CopySource': f'/{bucket}/{file_key}',
@@ -316,6 +318,7 @@ class Datalake:
             'ContentType': head['ContentType'],
             'Metadata': {
                 **current_meta,
+                FIELDS['FILE_ID']: file_id,
                 FIELDS['CUSTOM_METADATA']: custom_meta_str,
                 FIELDS['CUSTOM_TAGS']: custom_tags_str
             },
@@ -331,7 +334,7 @@ class Datalake:
             'type': 's3file',
             'bucket': bucket,
             'fileKey': file_key,
-            'fileId': current_meta[FIELDS['FILE_ID']],
+            'fileId': file_id,
             # fakeS3 does not return VersionId, so use '' to avoid an exception
             'version': response.get('VersionId', '')
         }
