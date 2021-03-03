@@ -111,7 +111,9 @@ def test_context_public_interface():
     r = c.run_command('org_slug', 'target_id', 'action', {'meta1': 'v1'}, 'payload')
     assert r == {'_func': 'command.run_commands'}
 
-    label_file = {}
+    label_file = {
+        'fileId': 'a9d32638-292c-4652-8309-bdd6de272690'
+    }
     r = c.add_labels(label_file, [{'meta1': 'v1'}])
     assert r == {'_func': 'fileinfo.add_labels'}
 

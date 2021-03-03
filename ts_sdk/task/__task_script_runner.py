@@ -276,11 +276,11 @@ class Context:
 
 
     def get_file_id(self, file):
-        if file['fileId'] is None:
+        if "fileId" in file:
+            file_id = file['fileId']
+        else:
             file_metadata = self._datalake.get_file_meta(file)
             file_id = file_metadata.get('ts_file_id')
-        else:
-            file_id = file['fileId']
         return file_id
 
     def add_labels(self, file, labels):
