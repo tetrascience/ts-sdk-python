@@ -32,14 +32,22 @@ class DatalakeMock:
     def update_metadata_tags(self, *args, **kwargs):
         return {'_func': 'datalake.update_metadata_tags'}
 
-idsMock = { 
-    'get_ids': lambda *args, **kwargs: {}, 
+idsMock = {
+    'get_ids': lambda *args, **kwargs: {},
     'validate_ids': lambda *args, **kwargs: True
 }
 
 class CommandMock:
     def run_command(self, *args, **kwarg):
         return {'_func': 'command.run_commands'}
+
+class FileinfoMock:
+    def add_labels(self, *args, **kwarg):
+        return {'_func': 'fileinfo.add_labels'}
+    def get_labels(self, *args, **kwarg):
+        return {'_func': 'fileinfo.get_labels'}
+    def delete_labels(self, *args, **kwarg):
+        return {'_func': 'fileinfo.delete_labels'}
 
 def test_context_public_interface():
     os.environ['TASK_SCRIPTS_CONTAINERS_MODE'] = 'ecs'
@@ -48,8 +56,8 @@ def test_context_public_interface():
     log = LogMock()
 
     input_file = {
-        'type': 's3', 
-        'bucket': 'bucket', 
+        'type': 's3',
+        'bucket': 'bucket',
         'fileKey': 'some/fileKey'
     }
 
@@ -62,13 +70,14 @@ def test_context_public_interface():
         {
             'inputFile': input_file,
             'pipelineConfig': pipeline_config
-        }, 
-        DatalakeMock(), 
-        idsMock, 
-        log, 
-        CommandMock()
+        },
+        DatalakeMock(),
+        idsMock,
+        log,
+        CommandMock(),
+        FileinfoMock()
     )
-    
+
     r = c.read_file(input_file)
     assert r == {'_func': 'datalake.read_file'}
 
@@ -85,19 +94,29 @@ def test_context_public_interface():
     assert r == {'_func': 'datalake.write_ids'}
 
     r = c.get_file_name(input_file)
-    assert r == 'filename' 
+    assert r == 'filename'
 
     r = c.get_logger()
     assert r == log
 
     r = c.get_secret_config_value('password')
-    assert r == 'secretvalue' 
+    assert r == 'secretvalue'
 
     r = c.get_presigned_url(input_file)
-    assert r == 'presigned_url' 
+    assert r == 'presigned_url'
 
     r = c.update_metadata_tags(input_file, {'meta1': 'v1'}, ['t1', 't2'])
     assert r == {'_func': 'datalake.update_metadata_tags'}
 
     r = c.run_command('org_slug', 'target_id', 'action', {'meta1': 'v1'}, 'payload')
     assert r == {'_func': 'command.run_commands'}
+
+    label_file = {}
+    r = c.add_labels(label_file, [{'meta1': 'v1'}])
+    assert r == {'_func': 'fileinfo.add_labels'}
+
+    r = c.get_labels(label_file)
+    assert r == {'_func': 'fileinfo.get_labels'}
+
+    r = c.delete_labels(label_file, [1,2,3])
+    assert r == {'_func': 'fileinfo.delete_labels'}

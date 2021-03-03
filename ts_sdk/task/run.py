@@ -32,7 +32,8 @@ if __name__ == '__main__':
         'artifact_bucket_private': os.environ.get('ARTIFACT_S3FILE_BUCKET_PRIVATE'),
         'artifact_prefix_private': os.environ.get('ARTIFACT_S3FILE_PREFIX_PRIVATE'),
         'artifact_endpoint_private': os.environ.get('ARTIFACT_S3FILE_ENDPOINT_PRIVATE'),
-        'command_endpoint': os.environ.get('COMMAND_ENDPOINT')
+        'command_endpoint': os.environ.get('COMMAND_ENDPOINT'),
+        'fileinfo_endpoint': os.environ.get('FILEINFO_ENDPOINT')
     }
     sys.path.append(params['func_dir'])
 
