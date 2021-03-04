@@ -18,6 +18,7 @@ from .__util_merge import merge_arrays, merge_objects
 from .__util_metadata import FIELDS
 from .__util_ids import create_ids_util
 from .__util_command import Command
+from .__util_fileinfo import Fileinfo
 
 COMPLETED = 'completed'
 FAILED = 'failed'
@@ -80,7 +81,7 @@ class Context:
     tmp_dir: str = '/tmp'
 
 
-    def __init__(self, obj, datalake, ids_util, log, command):
+    def __init__(self, obj, datalake, ids_util, log, command, fileinfo):
         self._obj = { **obj, 'tmpDir': '/tmp' } # keys are later converted to snake case via "camel_to_snake"
         for key in self._obj:
             setattr(self, camel_to_snake(key), self._obj[key])
@@ -88,6 +89,7 @@ class Context:
         self._ids_util = ids_util
         self._log = log
         self._command = command
+        self._fileinfo = fileinfo
 
     @wrap_log('context.read_file')
     def read_file(self, file: File, form: str = 'body') -> ReadResult:
@@ -272,6 +274,27 @@ class Context:
         """
         return self._command.run_command(self._obj, org_slug, target_id, action, metadata, payload, ttl_sec)
 
+
+    def get_file_id(self, file):
+        if 'fileId' in file:
+            file_id = file['fileId']
+        else:
+            file_metadata = self._datalake.get_file_meta(file)
+            file_id = file_metadata.get(FIELDS['FILE_ID'])
+        return file_id
+
+    def add_labels(self, file, labels):
+        file_id = self.get_file_id(file)
+        return self._fileinfo.add_labels(self._obj, file_id, labels)
+
+    def get_labels(self, file):
+        file_id = self.get_file_id(file)
+        return self._fileinfo.get_labels(self._obj, file_id)
+
+    def delete_labels(self, file, label_ids):
+        file_id = self.get_file_id(file)
+        return self._fileinfo.delete_labels(self._obj, file_id, label_ids)
+
 def output_response(storage, response, correlation_id):
     storage.writeObject({**response, 'id': correlation_id})
 
@@ -333,7 +356,7 @@ def run(input, context_from_arg, func, correlation_id, func_dir,
         storage_type, storage_bucket, storage_file_key, storage_endpoint,
         artifact_bucket, artifact_prefix, artifact_endpoint, artifact_file_key,
         artifact_bucket_private, artifact_prefix_private, artifact_endpoint_private, command_endpoint,
-        store_output=True):
+        fileinfo_endpoint, store_output=True):
     log = Log(context_from_arg)
     Context.log = log
     log.log({ 'level': 'debug', 'tag': LOG_TAG_SCRIPT_STARTED })
@@ -369,7 +392,8 @@ def run(input, context_from_arg, func, correlation_id, func_dir,
     storage = Storage(storage_bucket, storage_file_key, storage_endpoint)
     datalake = Datalake(storage_endpoint)
     command = Command(command_endpoint)
-    context = Context(context_from_arg, datalake, ids_util, log, command)
+    fileinfo = Fileinfo(fileinfo_endpoint)
+    context = Context(context_from_arg, datalake, ids_util, log, command, fileinfo)
     func_module, func_name = resolve_func(func_dir, func)
     try:
         log.log({ 'level': 'debug', 'tag': LOG_TAG_PRE_FUNCTION, 'funcName': f'{func_module}.{func_name}' })

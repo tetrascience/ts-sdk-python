@@ -119,3 +119,12 @@ class Context:
 
     def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
         return {}
+
+    def add_labels(self, file, labels):
+        return {}
+
+    def get_labels(self, file):
+        return {}
+
+    def delete_labels(self, file):
+        return {}
