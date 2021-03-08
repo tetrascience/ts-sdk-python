@@ -45,6 +45,9 @@ class Fileinfo:
         org_slug = context_data.get('orgSlug')
 
         if len(label_ids) == 1:
+            # HAPI endpoint is configured that it accepts array of IDs. It works fine where there are two or more IDs.
+            # However, when there is only one value, JOI validation for endpoint fails complaining that id must be
+            # an array. Workaround is to send same id twice
             suffix = f'id={label_ids[0]}&id={label_ids[0]}'
         else:
             suffix = '&'.join(map(lambda id: 'id=' + str(id), label_ids))
