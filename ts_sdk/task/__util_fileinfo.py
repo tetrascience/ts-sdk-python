@@ -39,9 +39,15 @@ class Fileinfo:
             raise Exception(response.text)
 
     def delete_labels(self, context_data, file_id, label_ids):
+        if label_ids is None or len(label_ids) == 0:
+            print('Empty labels_ids')
+            return
         org_slug = context_data.get('orgSlug')
 
-        suffix = '&'.join(map(lambda id: 'id=' + str(id), label_ids))
+        if len(label_ids) == 1:
+            suffix = f'id={label_ids[0]}&id={label_ids[0]}'
+        else:
+            suffix = '&'.join(map(lambda id: 'id=' + str(id), label_ids))
         url = f'{self.endpoint}/internal/{org_slug}/files/{file_id}/labels?{suffix}'
 
         headers = {
