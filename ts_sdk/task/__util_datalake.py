@@ -186,8 +186,10 @@ class Datalake:
     def write_file(self, context, content, file_name, file_category, raw_file, file_meta, ids = None, source_type = None):
         bucket = raw_file['bucket']
         raw_file_key = raw_file['fileKey']
+        if file_category == 'RAW':
+            raise Exception('RAW file_category is not allowed')
         if file_category == 'IDS' and ids is None:
-            raise Exception(f'ids can not be None when file_category is IDS')
+            raise Exception('ids can not be None when file_category is IDS')
         ids_obj = VersionedRef(composite=ids)
         pattern = '(.*?)/(.*?)/(?:.*?)/(.*)'
         match = re.match(pattern, raw_file_key, flags=re.DOTALL)
