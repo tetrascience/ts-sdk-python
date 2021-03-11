@@ -16,6 +16,7 @@ from urllib.parse import urlencode
 from .__util_versioned_ref import VersionedRef
 from .__util_metadata import FIELDS
 
+WRITE_ALLOWED_CATEGORIES = ['IDS', 'PROCESSED', 'TMP']
 DISABLE_GZIP = os.environ.get('DISABLE_GZIP')
 ENV = os.environ.get('ENV')
 AWS_REGION = os.environ.get('AWS_REGION')
@@ -186,8 +187,10 @@ class Datalake:
     def write_file(self, context, content, file_name, file_category, raw_file, file_meta, ids = None, source_type = None):
         bucket = raw_file['bucket']
         raw_file_key = raw_file['fileKey']
+        if not(file_category in WRITE_ALLOWED_CATEGORIES):
+            raise Exception(f'{file_category} is not allowed category for write_file')
         if file_category == 'IDS' and ids is None:
-            raise Exception(f'ids can not be None when file_category is IDS')
+            raise Exception('ids can not be None when file_category is IDS')
         ids_obj = VersionedRef(composite=ids)
         pattern = '(.*?)/(.*?)/(?:.*?)/(.*)'
         match = re.match(pattern, raw_file_key, flags=re.DOTALL)
