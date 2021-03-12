@@ -21,6 +21,9 @@ def put_cmd_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         '--ignore-ssl', '-i', action='store_true', help='ignore the SSL certificate verification'
     )
+    parser.add_argument(
+        '--config', '-c', help='JSON file with configuration', type=argparse.FileType('r')
+    )
     parser.set_defaults(func=__cmd)
 
 def __version_type(arg_value, pat=re.compile(r'^v')):
@@ -35,6 +38,11 @@ def __folder_type(arg_value):
 
 def __cmd(args):
     set_ignore_ssl(args.ignore_ssl)
+
+    if args.config:
+        parsed_config = json.load(args.config)
+        os.environ.update(**parsed_config)
+
     print('Compressing...', flush=True)
     zip_buffer = io.BytesIO()
     zipf = zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False)
