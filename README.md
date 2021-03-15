@@ -31,9 +31,9 @@ ts-sdk put <ids|protocol|task-script> <namespace> <slug> <version> <artifact-fol
 It's also possible to use the configuration JSON file (`cfg.json`):
 ```
 {
-    "TS_API_URL": "https://api.tetrascience.com/v1",
-    "TS_AUTH_TOKEN": "your-token",
-    "TS_ORG": "your-org"
+    "api_url": "https://api.tetrascience.com/v1",
+    "auth_token": "your-token",
+    "org": "your-org"
 }
 ```
 Usage: `ts-sdk put <ids|protocol|task-script> <namespace> <slug> <version> <artifact-folder> -c cfg.json`

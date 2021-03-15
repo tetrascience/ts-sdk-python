@@ -7,72 +7,75 @@ import traceback
 import requests
 from datetime import datetime
 
-__type_to_url = {
-  'ids': 'ids',
-  'master-script': 'master-scripts',
-  'protocol': 'master-scripts',
-  'task-script': 'task-scripts'
-}
+class TsApi:
 
-__ignore_ssl = False
+    def __init__(self, **kwargs):
+        assert kwargs['org'], 'org slug is not set!'
+        assert kwargs['api_url'], 'platform API URL is not set!'
+        assert kwargs['auth_token'], 'authorization token is not set!'
+        self.opts = kwargs
 
-def __get_env(name: str):
-    v = os.environ.get(name)
-    if not v:
-        raise Exception(f'{name} env is not set!')
-    return v
+    @property
+    def __api_url(self):
+        return self.opts.get('api_url')
 
-def __get_headers():
-    headers = {'x-org-slug': __get_env('TS_ORG')}
-    ts_auth = __get_env('TS_AUTH_TOKEN')
-    if re.compile(r'^([a-z0-9]+-)+[a-z0-9]+$').match(ts_auth, re.IGNORECASE):
-        headers['x-api-key'] = ts_auth
-    else:
-        headers['ts-auth-token'] = ts_auth
-    return headers
+    @property
+    def __request_defaults(self):
+        return {
+            'verify': self.opts.get('ignore_ssl') != True,
+            'headers': self.__get_headers()
+        }
 
-def set_ignore_ssl(v: bool):
-    global __ignore_ssl
-    __ignore_ssl = v
+    def __get_headers(self):
+        headers = {'x-org-slug': self.opts.get('org')}
+        ts_auth = self.opts.get('auth_token')
+        if re.compile(r'^([a-z0-9]+-)+[a-z0-9]+$').match(ts_auth, re.IGNORECASE):
+            headers['x-api-key'] = ts_auth
+        else:
+            headers['ts-auth-token'] = ts_auth
+        return headers
 
-def upload_artifact(cfg, artifact_bytes):
-    url = f'{__get_env("TS_API_URL")}/artifact/{__type_to_url[cfg.type]}/{cfg.namespace}/{cfg.slug}/{cfg.version}'
-    r = requests.post(
-        url, 
-        headers=__get_headers(),
-        params={'force': 'true'} if cfg.force else {},
-        data=artifact_bytes,
-        verify=not __ignore_ssl
-    )
-    if r.status_code < 400:
-        return r.json()
-    else:
-        print(r.json(), file=sys.stderr, flush=True)
-        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
-
-def get_task_script_build_info(id: str):
-    url = f'{__get_env("TS_API_URL")}/artifact/builds/{id}'
-    r = requests.get(
-        url, 
-        headers=__get_headers(),
-        verify=not __ignore_ssl
-    )
-    if r.status_code < 400:
-        return r.json()
-    else:
-        print(r.json(), file=sys.stderr, flush=True)
-        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
-
-def get_task_script_build_logs(id: str, params):
-    url = f'{__get_env("TS_API_URL")}/artifact/build-logs/{id}'
-    r = requests.get(
-        url, 
-        headers=__get_headers(),
-        params={k:v for k,v in params.items() if v is not None},
-        verify=not __ignore_ssl
+    def upload_artifact(self, cfg, artifact_bytes):
+        type_to_url = {
+            'ids': 'ids',
+            'master-script': 'master-scripts',
+            'protocol': 'master-scripts',
+            'task-script': 'task-scripts'
+        }
+        url = f'{self.__api_url}/artifact/{type_to_url[cfg.type]}/{cfg.namespace}/{cfg.slug}/{cfg.version}'
+        r = requests.post(
+            url,
+            **self.__request_defaults,
+            params={'force': 'true'} if cfg.force else {},
+            data=artifact_bytes
         )
-    if r.status_code < 400:
-        return r.json()
-    else:
-        print(r.json(), file=sys.stderr, flush=True)
-        raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
+        if r.status_code < 400:
+            return r.json()
+        else:
+            print(r.json(), file=sys.stderr, flush=True)
+            raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
+
+    def get_task_script_build_info(self, id: str):
+        url = f'{self.__api_url}/artifact/builds/{id}'
+        r = requests.get(
+            url,
+            **self.__request_defaults
+        )
+        if r.status_code < 400:
+            return r.json()
+        else:
+            print(r.json(), file=sys.stderr, flush=True)
+            raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
+
+    def get_task_script_build_logs(self, id: str, params):
+        url = f'{self.__api_url}/artifact/build-logs/{id}'
+        r = requests.get(
+            url,
+            **self.__request_defaults,
+            params={k:v for k,v in params.items() if v is not None}
+            )
+        if r.status_code < 400:
+            return r.json()
+        else:
+            print(r.json(), file=sys.stderr, flush=True)
+            raise Exception(f'HTTP status: {r.status_code}, url: {r.url}')
