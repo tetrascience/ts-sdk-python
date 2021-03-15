@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 import re
 import time
@@ -73,7 +72,7 @@ class TsApi:
             url,
             **self.__request_defaults,
             params={k:v for k,v in params.items() if v is not None}
-            )
+        )
         if r.status_code < 400:
             return r.json()
         else:

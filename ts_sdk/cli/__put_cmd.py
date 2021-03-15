@@ -49,18 +49,22 @@ def __cmd(args):
     for k, v in os.environ.items():
         if k.startswith(env_prefix):
             arg_key = k.replace(env_prefix, '').lower()
-            if not getattr(args, arg_key, None):
+            if getattr(args, arg_key, None) is None:
                 setattr(args, arg_key, v)
 
     # from config
     if args.config:
         parsed_config = json.load(args.config)
         for k, v in parsed_config.items():
-            if not getattr(args, k, None):
+            if getattr(args, k, None) is None:
                 setattr(args, k, v)
 
     print('Config:')
-    print(json.dumps(args.__dict__, default=lambda x: None, indent=4, sort_keys=True))
+    keys_to_show = ['api_url', 'org', 'auth_token', 'ignore_ssl']
+    config_to_show = { key_to_show: args.__dict__[key_to_show] for key_to_show in keys_to_show }
+    if isinstance(config_to_show.get('auth_token'), str):
+        config_to_show.update({'auth_token': f'{config_to_show["auth_token"][0:7]}...'})
+    print(json.dumps(config_to_show, indent=4, sort_keys=True))
 
     ts_api = TsApi(**args.__dict__)
 
