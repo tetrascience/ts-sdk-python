@@ -6,12 +6,23 @@ import traceback
 import requests
 from datetime import datetime
 
+from .__utils import tcolors
+
+
+def validate_dict_key(d, k):
+    if d.get(k) is None:
+        print(f'{tcolors.FAIL}{k} is not set!{tcolors.ENDC}', file=sys.stderr, flush=True)
+        return False
+    return True
+
 class TsApi:
 
     def __init__(self, **kwargs):
-        assert kwargs['org'], 'org slug is not set!'
-        assert kwargs['api_url'], 'platform API URL is not set!'
-        assert kwargs['auth_token'], 'authorization token is not set!'
+        res = validate_dict_key(kwargs, 'org')
+        res &= validate_dict_key(kwargs, 'api_url')
+        res &= validate_dict_key(kwargs, 'auth_token')
+        if not res:
+            sys.exit(1)
         self.opts = kwargs
 
     @property

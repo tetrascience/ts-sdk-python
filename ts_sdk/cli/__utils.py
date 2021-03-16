@@ -5,6 +5,17 @@ import zipfile
 import requests
 import xml.etree.ElementTree as ET
 
+class tcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 def get_latest_version():
     try:
         r = requests.get('https://pypi.org/rss/project/ts-sdk/releases.xml', timeout=5)

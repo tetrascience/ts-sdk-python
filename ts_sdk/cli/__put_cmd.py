@@ -42,8 +42,7 @@ def __folder_type(arg_value):
         return arg_value
     raise argparse.ArgumentTypeError('Not valid folder path provided!')
 
-def __cmd(args):
-
+def __ensure_args(args: argparse.Namespace):
     # from env
     env_prefix = 'TS_'
     for k, v in os.environ.items():
@@ -59,6 +58,9 @@ def __cmd(args):
             if getattr(args, k, None) is None:
                 setattr(args, k, v)
 
+
+def __cmd(args):
+    __ensure_args(args)
     print('Config:')
     keys_to_show = ['api_url', 'org', 'auth_token', 'ignore_ssl']
     config_to_show = { key_to_show: args.__dict__[key_to_show] for key_to_show in keys_to_show }

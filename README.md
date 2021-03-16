@@ -33,7 +33,8 @@ It's also possible to use the configuration JSON file (`cfg.json`):
 {
     "api_url": "https://api.tetrascience.com/v1",
     "auth_token": "your-token",
-    "org": "your-org"
+    "org": "your-org",
+    "ignore_ssl": false
 }
 ```
 Usage: `ts-sdk put <ids|protocol|task-script> <namespace> <slug> <version> <artifact-folder> -c cfg.json`
