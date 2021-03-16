@@ -6,7 +6,7 @@ import argparse
 import re
 from time import sleep, time
 
-from .__api import upload_artifact, get_task_script_build_info, get_task_script_build_logs, set_ignore_ssl
+from .__api import TsApi
 from .__utils import sizeof_fmt, zipdir
 
 def put_cmd_args(parser: argparse.ArgumentParser):
@@ -21,6 +21,15 @@ def put_cmd_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         '--ignore-ssl', '-i', action='store_true', help='ignore the SSL certificate verification'
     )
+    
+    parser.add_argument('--org', help='org slug', type=str)
+    parser.add_argument('--api-url', help='platform API URL', type=str)
+    parser.add_argument('--auth-token', help='authorization token', type=str)
+    
+    parser.add_argument(
+        '--config', '-c', help='JSON file with configuration', type=argparse.FileType('r')
+    )
+    
     parser.set_defaults(func=__cmd)
 
 def __version_type(arg_value, pat=re.compile(r'^v')):
@@ -33,8 +42,34 @@ def __folder_type(arg_value):
         return arg_value
     raise argparse.ArgumentTypeError('Not valid folder path provided!')
 
+def __ensure_args(args: argparse.Namespace):
+    # from env
+    env_prefix = 'TS_'
+    for k, v in os.environ.items():
+        if k.startswith(env_prefix):
+            arg_key = k.replace(env_prefix, '').lower()
+            if getattr(args, arg_key, None) is None:
+                setattr(args, arg_key, v)
+
+    # from config
+    if args.config:
+        parsed_config = json.load(args.config)
+        for k, v in parsed_config.items():
+            if getattr(args, k, None) is None:
+                setattr(args, k, v)
+
+
 def __cmd(args):
-    set_ignore_ssl(args.ignore_ssl)
+    __ensure_args(args)
+    print('Config:')
+    keys_to_show = ['api_url', 'org', 'auth_token', 'ignore_ssl']
+    config_to_show = { key_to_show: args.__dict__[key_to_show] for key_to_show in keys_to_show }
+    if isinstance(config_to_show.get('auth_token'), str):
+        config_to_show.update({'auth_token': f'{config_to_show["auth_token"][0:7]}...'})
+    print(json.dumps(config_to_show, indent=4, sort_keys=True))
+
+    ts_api = TsApi(**args.__dict__)
+
     print('Compressing...', flush=True)
     zip_buffer = io.BytesIO()
     zipf = zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False)
@@ -44,7 +79,7 @@ def __cmd(args):
 
     print(f'Uploading {sizeof_fmt(len(zip_bytes))}...', flush=True)
 
-    r = upload_artifact(args, zip_bytes)
+    r = ts_api.upload_artifact(args, zip_bytes)
 
     print(json.dumps(r, indent=4, sort_keys=True), flush=True)
 
@@ -61,13 +96,13 @@ def __cmd(args):
         prev_next_token = ''
 
         while True:
-            build_info = get_task_script_build_info(build_id)
+            build_info = ts_api.get_task_script_build_info(build_id)
             build_complete = build_info.get('build', {}).get('buildComplete')
             build_status = build_info.get('build', {}).get('buildStatus')
 
             sleep(3)
 
-            logs_resp = get_task_script_build_logs(
+            logs_resp = ts_api.get_task_script_build_logs(
                 build_id,
                 {'nextToken': prev_next_token}
             )

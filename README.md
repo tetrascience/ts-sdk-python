@@ -28,8 +28,13 @@ export TS_AUTH_TOKEN=<token>
 ts-sdk put <ids|protocol|task-script> <namespace> <slug> <version> <artifact-folder>
 ```
 
-## Dockerfile ENTRYPOINT
-
+It's also possible to use the configuration JSON file (`cfg.json`):
 ```
-ENTRYPOINT [ "<python-bin>", "-u", "-m", "ts_sdk.task.run" ]
+{
+    "api_url": "https://api.tetrascience.com/v1",
+    "auth_token": "your-token",
+    "org": "your-org",
+    "ignore_ssl": false
+}
 ```
+Usage: `ts-sdk put <ids|protocol|task-script> <namespace> <slug> <version> <artifact-folder> -c cfg.json`
