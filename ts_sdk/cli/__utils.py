@@ -4,17 +4,8 @@ import time
 import zipfile
 import requests
 import xml.etree.ElementTree as ET
+from colorama import Fore
 
-class tcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 def get_latest_version():
     try:
@@ -37,8 +28,8 @@ def check_update_required(current_version):
             latest_version_path.write_text(latest_version)
 
         if latest_version and check_versions_for_update(current_version, latest_version):
-            print(f'\n\u001b[33mPlease upgrade ts-sdk (local: {current_version}, latest: {latest_version})\u001b[0m')
-            print('\u001b[33mUse: pip3 install ts-sdk --upgrade\u001b[0m\n')
+            print(f'\n{Fore.YELLOW}Please upgrade ts-sdk (local: {current_version}, latest: {latest_version}){Fore.RESET}')
+            print(f'{Fore.YELLOW}Use: pip3 install ts-sdk --upgrade{Fore.RESET}\n')
 
     except Exception as ex:
         # print(ex)

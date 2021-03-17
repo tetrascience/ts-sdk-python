@@ -6,6 +6,7 @@ from setuptools import setup, find_packages
 REQUIRES = [
     "boto3>=1.16.3,<2",
     "botocore>=1.19.3,<2",
+    "colorama>=0.4.4,<1",
     "jsonschema>=3.2.0,<4",
     "query-string>=2020.7.1,<2021",
     "requests>=2.22.0,<3",

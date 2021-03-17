@@ -6,12 +6,12 @@ import traceback
 import requests
 from datetime import datetime
 
-from .__utils import tcolors
+from colorama import Fore
 
 
 def validate_dict_key(d, k):
     if d.get(k) is None:
-        print(f'{tcolors.FAIL}{k} is not set!{tcolors.ENDC}', file=sys.stderr, flush=True)
+        print(f'{Fore.RED}{k} is not set!{Fore.RESET}', file=sys.stderr, flush=True)
         return False
     return True
 
