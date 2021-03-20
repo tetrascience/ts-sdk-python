@@ -26,11 +26,11 @@ def poll_task():
     response = urllib.request.urlopen(req, context=ssl._create_unverified_context())
     return generate_task_from_reponse(json.load(response))
   except urllib.error.HTTPError as e:
-      print(f'HTTPError: {e.code} for {poll_url}')
+      print({ 'level': 'error', 'message': f'HTTPError: {e.code} for {poll_url}' })
   except urllib.error.URLError as e:
-      print(f'URLError: {e.code} for {poll_url}')
+      print({ 'level': 'error', 'message': f'URLError: {e.reason} for {poll_url}' })
   except Exception as e:
-      print(traceback.format_exc())
+      print({ 'level': 'error', 'message': traceback.format_exc() })
 
 def update_task_status(task, result):
   try: 
@@ -40,11 +40,11 @@ def update_task_status(task, result):
     req = urllib.request.Request(update_url, data, headers={'content-type': 'application/json'})
     urllib.request.urlopen(req, context=ssl._create_unverified_context())
   except urllib.error.HTTPError as e:
-      print(f'HTTPError: {e.code} for {update_url}')
+      print({ 'level': 'error', 'message': f'HTTPError: {e.code} for {update_url}' })
   except urllib.error.URLError as e:
-      print(f'URLError: {e.code} for {update_url}')
+      print({ 'level': 'error', 'message': f'URLError: {e.reason} for {update_url}' })
   except Exception as e:
-      print(traceback.format_exc())
+      print({ 'level': 'error', 'message': traceback.format_exc() })
 
 def generate_task_from_reponse(body):
   if body:
@@ -68,12 +68,12 @@ def extend_task_timeout(task):
     extend_timeout_url = url + f'/task/{task_id}/extend-timeout'
     req = urllib.request.Request(extend_timeout_url, {}, headers={'content-type': 'application/json'})
     urllib.request.urlopen(req, context=ssl._create_unverified_context())
-    print("EXTENDING: " + task.get('id'))
+    print({ 'level': 'debug', 'message': f'EXTENDING: {task.get("id")}' })
   except urllib.error.HTTPError as e:
-      print(f'HTTPError: {e.code} for {extend_timeout_url}')
+      print({ 'level': 'error', 'message': f'HTTPError: {e.code} for {extend_timeout_url}' })
       if e.code == 409:
         raise
   except urllib.error.URLError as e:
-      print(f'URLError: {e.code} for {extend_timeout_url}')
+      print({ 'level': 'error', 'message': f'URLError: {e.reason} for {extend_timeout_url}' })
   except Exception as e:
-      print(traceback.format_exc())
+      print({ 'level': 'error', 'message': traceback.format_exc() })
