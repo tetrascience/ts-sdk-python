@@ -19,6 +19,7 @@ from .__util_metadata import FIELDS
 from .__util_ids import create_ids_util
 from .__util_command import Command
 from .__util_fileinfo import Fileinfo
+from .__util_validation import validate_file_meta, validate_file_tags, validate_file_labels
 
 COMPLETED = 'completed'
 FAILED = 'failed'
@@ -141,6 +142,8 @@ class Context:
         """
 
         raw_file = self.input_file
+        validate_file_meta(custom_metadata)
+        validate_file_tags(custom_tags)
         file_meta = {
             # in case custom_metadata & custom_tags are undefined in raw_file meta
             FIELDS['CUSTOM_METADATA']: '',
@@ -191,6 +194,8 @@ class Context:
         """Similar to write_file, but for IDS
         """
         raw_file = self.input_file
+        validate_file_meta(custom_metadata)
+        validate_file_tags(custom_tags)
         file_meta = {
             # in case custom_metadata & custom_tags are undefined in raw_file meta
             FIELDS['CUSTOM_METADATA']: '',
@@ -267,8 +272,11 @@ class Context:
         Use 'None' to remove a meta entry.
         New tags will be appended to existing ones.
         """
+        validate_file_meta(custom_meta)
+        validate_file_tags(custom_tags)
         return self._datalake.update_metadata_tags(file, custom_meta, custom_tags)
 
+    @wrap_log('context.run_command')
     def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
         """Invokes remote command/action on target (agent or connector) and returns its response
         """
@@ -283,7 +291,9 @@ class Context:
             file_id = file_metadata.get(FIELDS['FILE_ID'])
         return file_id
 
+    @wrap_log('context.add_labels')
     def add_labels(self, file, labels):
+        validate_file_labels(labels)
         file_id = self.get_file_id(file)
         return self._fileinfo.add_labels(self._obj, file_id, labels)
 
@@ -291,6 +301,7 @@ class Context:
         file_id = self.get_file_id(file)
         return self._fileinfo.get_labels(self._obj, file_id)
 
+    @wrap_log('context.delete_labels')
     def delete_labels(self, file, label_ids):
         file_id = self.get_file_id(file)
         return self._fileinfo.delete_labels(self._obj, file_id, label_ids)
