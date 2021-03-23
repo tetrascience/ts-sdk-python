@@ -1,5 +1,4 @@
 import os
-import logging
 import boto3
 from botocore.client import Config
 import gzip
@@ -157,7 +156,7 @@ class Datalake:
 
         status_code = response.get('ResponseMetadata', {}).get('HTTPStatusCode')
         if not status_code == 200:
-            logging.error(response)
+            print({ 'level': 'error', 'message': response })
             raise Exception('Invalid response code')
 
         meta = lowerMetadataKeys(response.get('Metadata'))
@@ -184,7 +183,7 @@ class Datalake:
 
         return result
 
-    def write_file(self, context, content, file_name, file_category, raw_file, file_meta, ids = None, source_type = None):
+    def write_file(self, context, content, file_name, file_category, raw_file, file_meta, ids = None, source_type = None, labels = []):
         bucket = raw_file['bucket']
         raw_file_key = raw_file['fileKey']
         if not(file_category in WRITE_ALLOWED_CATEGORIES):
@@ -261,8 +260,8 @@ class Datalake:
                     content = content.encode()
                 content = gzip.compress(content)
             response = self.s3.put_object(Body=content, **params)
-        logging.info(response)
-        return {
+        print({ 'level': 'debug', 'message': 'file created', 'response': response })
+        result_file = {
             'type': 's3file',
             'bucket': bucket,
             'fileKey': file_key,
@@ -270,6 +269,15 @@ class Datalake:
             # fakeS3 does not return VersionId, so use '' to avoid an exception
             'version': response.get('VersionId', '')
         }
+
+        if len(labels) > 0:
+            self.create_labels_file(
+                target_file=result_file, 
+                org_slug=org_slug,
+                labels=labels
+            )
+
+        return result_file
 
     def update_metadata_tags(self, file, custom_meta, custom_tags):
         bucket = file['bucket']
@@ -342,10 +350,10 @@ class Datalake:
             'version': response.get('VersionId', '')
         }
 
-    def write_ids(self, context, content_obj, file_suffix, raw_file, file_meta, ids, source_type, file_category):
+    def write_ids(self, context, content_obj, file_suffix, raw_file, file_meta, ids, source_type, file_category, labels):
         ids_obj = VersionedRef(composite=ids)
         file_name = f'{ids_obj.name}_{ids_obj.version}_{file_suffix}'
-        result = self.write_file(context, json.dumps(content_obj, indent=4), file_name, file_category, raw_file, file_meta, ids, source_type)
+        result = self.write_file(context, json.dumps(content_obj, indent=4), file_name, file_category, raw_file, file_meta, ids, source_type, labels)
         return result
 
     def get_file_name(self, file):
@@ -370,7 +378,22 @@ class Datalake:
                 'Key': key,
                 **kwargs
             }, ExpiresIn=ttl_sec)
-        except Error as e:
+        except Exception as e:
             print(e)
 
         return None
+
+    def create_labels_file(self, target_file, org_slug, labels):
+        file_key_parts = target_file['fileKey'].split(os.path.sep)
+        file_key_parts.pop()
+        file_key_parts.append(f'{target_file["fileId"]}.labels')
+        params = {
+            'Bucket': target_file['bucket'],
+            'Key': os.path.sep.join(file_key_parts),
+            'ServerSideEncryption': 'aws:kms',
+            'SSEKMSKeyId': get_kms_key_name(org_slug),
+            'ContentType': 'application/json'
+        }
+        response = self.s3.put_object(Body=json.dumps(labels), **params)
+        print({ 'level': 'debug', 'message': 'labels file created', 'response': response })
+

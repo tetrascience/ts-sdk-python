@@ -137,6 +137,7 @@ class Context:
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
         source_type: t.Optional[str] = None,
+        labels: t.Iterable[t.Mapping[str, str]] = []
     ) -> File:
         """Writes an output file to the data lake
         """
@@ -189,7 +190,8 @@ class Context:
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
         source_type: t.Optional[str] = None,
-        file_category: t.Optional[str] = 'IDS'
+        file_category: t.Optional[str] = 'IDS',
+        labels: t.Iterable[t.Mapping[str, str]] = []
     ) -> File:
         """Similar to write_file, but for IDS
         """
@@ -218,7 +220,8 @@ class Context:
             file_meta=file_meta,
             ids=ids,
             source_type=source_type,
-            file_category=file_category
+            file_category=file_category,
+            labels=labels
         )
 
     def get_file_name(self, file: File) -> str:

@@ -1,4 +1,3 @@
-import logging
 import boto3
 import json
 
@@ -17,4 +16,4 @@ class Storage:
         full_file_key = self.file_key.format(**obj)
         response = self.s3.put_object(
             Bucket=self.bucket, Key=full_file_key, Body=json.dumps(obj))
-        logging.info(response)
+        print({ 'level': 'debug', 'message': 'storage object created', 'response': response })
