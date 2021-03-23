@@ -114,7 +114,7 @@ def test_context_public_interface():
     label_file = {
         'fileId': 'a9d32638-292c-4652-8309-bdd6de272690'
     }
-    r = c.add_labels(label_file, [{'meta1': 'v1'}])
+    r = c.add_labels(label_file, [{'name': 'label1', 'value': 'label-value-1'}])
     assert r == {'_func': 'fileinfo.add_labels'}
 
     r = c.get_labels(label_file)
