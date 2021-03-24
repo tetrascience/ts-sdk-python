@@ -50,6 +50,7 @@ class Context:
         custom_metadata: t.Dict[str, str] = None,
         custom_tags: t.List[str] = None,
         source_type: str = None,
+        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = []
     ) -> File:
         if type(content) == str:
             content = content.encode('UTF-8')
@@ -69,7 +70,7 @@ class Context:
             "fileKey": file_name,
         }
 
-    def get_ids(namespace: str, slug: str, version: str):
+    def get_ids(self, namespace: str, slug: str, version: str):
         return {}
 
     # always return true in local context
@@ -90,7 +91,8 @@ class Context:
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
         source_type: t.Optional[str] = None,
-        file_category: t.Optional[str] = 'IDS'
+        file_category: t.Optional[str] = 'IDS',
+        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = []
     ) -> File:
         return {}
 

@@ -137,7 +137,7 @@ class Context:
         custom_metadata: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
         source_type: t.Optional[str] = None,
-        labels: t.Iterable[t.Mapping[str, str]] = []
+        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = []
     ) -> File:
         """Writes an output file to the data lake
         """
@@ -191,7 +191,7 @@ class Context:
         custom_tags: t.Iterable[str] = [],
         source_type: t.Optional[str] = None,
         file_category: t.Optional[str] = 'IDS',
-        labels: t.Iterable[t.Mapping[str, str]] = []
+        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = []
     ) -> File:
         """Similar to write_file, but for IDS
         """
