@@ -71,4 +71,4 @@ def test_datalake_create_labels_file():
     )
     d.s3.put_object.assert_called_once()
     args, kwargs = d.s3.put_object.call_args
-    assert kwargs['Key'] == 'demo/abc/RAW/fileId.labels'
+    assert kwargs['Key'] == 'demo/abc/TMP/fileId.labels'
