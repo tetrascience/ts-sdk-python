@@ -389,7 +389,10 @@ class Datalake:
         file_key_parts.append(f'{target_file["fileId"]}.labels')
         params = {
             'Bucket': target_file['bucket'],
-            'Key': os.path.sep.join(file_key_parts).replace('/RAW/', '/TMP/'),
+            'Key': os.path.sep.join(file_key_parts)
+                .replace('/RAW/', '/TMP/')
+                .replace('/IDS/', '/TMP/')
+                .replace('/PROCESSED/', '/TMP/'),
             'ServerSideEncryption': 'aws:kms',
             'SSEKMSKeyId': get_kms_key_name(org_slug),
             'ContentType': 'application/json'
