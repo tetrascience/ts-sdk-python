@@ -385,12 +385,10 @@ class Datalake:
         return None
 
     def create_labels_file(self, target_file, org_slug, labels):
-        file_key_parts = target_file['fileKey'].split(os.path.sep)
-        file_key_parts.pop()
-        file_key_parts.append(f'{target_file["fileId"]}.labels')
+        file_key = os.path.join(target_file['fileKey'], f'{target_file["fileId"]}.labels')
         params = {
             'Bucket': target_file['bucket'],
-            'Key': os.path.sep.join(file_key_parts)
+            'Key': file_key
                 .replace('/RAW/', '/TMP/')
                 .replace('/IDS/', '/TMP/')
                 .replace('/PROCESSED/', '/TMP/'),
