@@ -294,12 +294,13 @@ class Datalake:
             for k,v in custom_meta_merged.items():
                 if not isASCII(k):
                     raise Exception(f'Metadata key {k} contains non-ASCII character')
-                if not isASCII(v):
+                if not isASCII(str(v)):
                     raise Exception(f'Metadata value {v} contains non-ASCII character')
             custom_meta_str = urlencode(custom_meta_merged)
 
         custom_tags_str = current_meta.get(FIELDS['CUSTOM_TAGS'], '')
         if custom_tags:
+            custom_tags = list(map(lambda x: str(x), custom_tags))
             for t in custom_tags:
                 if not isASCII(t):
                     raise Exception(f'Tag {t} contains non-ASCII character')
@@ -370,7 +371,7 @@ class Datalake:
                 'Key': key,
                 **kwargs
             }, ExpiresIn=ttl_sec)
-        except Error as e:
+        except Exception as e:
             print(e)
 
         return None
