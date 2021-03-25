@@ -165,7 +165,8 @@ class Context:
             raw_file=raw_file,
             file_meta=file_meta,
             ids=ids,
-            source_type=source_type
+            source_type=source_type,
+            labels=labels
         )
 
     @wrap_log('context.get_ids')
