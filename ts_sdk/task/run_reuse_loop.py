@@ -38,7 +38,9 @@ def get_run_params(task):
 
 log = Log({})
 
-last_run = {'result': None, 'error': None}
+manager = multiprocessing.Manager()
+
+last_run = manager.dict({'result': None, 'error': None})
 run_state = {'task_process': None, 'task': None}
 
 def healtcheck_worker():
@@ -56,15 +58,15 @@ def healtcheck_worker():
   Timer(60.0, healtcheck_worker).start()
 
 
-def task_process_fn(task):
+def task_process_fn(task, last_run_shared):
   run_params = get_run_params(task)
   sys.path.append(run_params.get('func_dir'))
   try:
-    last_run['result'] = run(**run_params)
+    last_run_shared['result'] = run(**run_params)
   except:
     e = sys.exc_info()[1]
     log.log(log.generate_error(e))
-    last_run['error'] = traceback.format_exc()
+    last_run_shared['error'] = traceback.format_exc()
   sys.path.remove(run_params.get('func_dir'))
 
 
@@ -81,7 +83,7 @@ if __name__ == '__main__':
       last_run['error'] = None
 
       run_state['task'] = task
-      task_process = multiprocessing.Process(name=f'task-{task_id}', target=task_process_fn, args=(task,))
+      task_process = multiprocessing.Process(name=f'task-{task_id}', target=task_process_fn, args=(task, last_run))
       run_state['task_process'] = task_process
       task_process.start()
       task_process.join()
@@ -91,6 +93,7 @@ if __name__ == '__main__':
       run_state['task_process'] = None
       run_state['task'] = None
 
+      # should we skip missing return value from the task script?
       if last_run['result'] != None:
         update_task_status(task, last_run['result'])
       else:
