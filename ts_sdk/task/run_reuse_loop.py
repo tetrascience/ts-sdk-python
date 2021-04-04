@@ -1,13 +1,13 @@
 import os
 import sys
 from threading import Timer
+import multiprocessing
 import traceback
 from datetime import datetime, timedelta
 from time import sleep, time
 
 from .__task_script_runner import run
 from .__util_log import Log
-from .__util_thread import ThreadWithTrace
 from .__util_task import (extend_task_timeout, poll_task, update_task_status)
 
 
@@ -39,24 +39,24 @@ def get_run_params(task):
 log = Log({})
 
 last_run = {'result': None, 'error': None}
-run_state = {'task_worker': None, 'task': None}
+run_state = {'task_process': None, 'task': None}
 
 def healtcheck_worker():
   task = run_state['task']
-  task_worker = run_state['task_worker']
+  task_process = run_state['task_process']
 
-  if task and task_worker:
+  if task and task_process:
     task_id = task.get('id')
     try:
       extend_task_timeout(task)
     except Exception as e:
       log.log(f'Error during timeout extension -> killing task {task_id}')
-      task_worker.kill()
+      task_process.terminate()
 
   Timer(60.0, healtcheck_worker).start()
 
 
-def task_worker(task):
+def task_process_fn(task):
   run_params = get_run_params(task)
   sys.path.append(run_params.get('func_dir'))
   try:
@@ -81,14 +81,14 @@ if __name__ == '__main__':
       last_run['error'] = None
 
       run_state['task'] = task
-      task_thread = ThreadWithTrace(name=f'task-{task_id}', target=task_worker, args=(task,))
-      run_state['task_worker'] = task_thread
-      task_thread.start()
-      task_thread.join()
+      task_process = multiprocessing.Process(name=f'task-{task_id}', target=task_process_fn, args=(task,))
+      run_state['task_process'] = task_process
+      task_process.start()
+      task_process.join()
 
-      log.log(f'Task {task_id} thread is completed')
+      log.log(f'Task {task_id} process is completed')
 
-      run_state['task_worker'] = None
+      run_state['task_process'] = None
       run_state['task'] = None
 
       if last_run['result'] != None:
