@@ -12,7 +12,7 @@ class Fileinfo:
         headers = {
             'Content-Type': 'application/json'
         }
-        attempt = 1
+        attempt = 0
         while attempt < attempts_max:
             sleep(check_delay)
             response = requests.request('GET', url, headers=headers, verify=False)
