@@ -53,7 +53,7 @@ def healtcheck_worker():
       extend_task_timeout(task)
     except Exception as e:
       log.log(f'Error during timeout extension -> killing task {task_id}')
-      task_process.terminate()
+      task_process.kill()
 
   Timer(60.0, healtcheck_worker).start()
 
