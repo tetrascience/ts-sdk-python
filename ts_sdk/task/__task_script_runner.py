@@ -278,7 +278,12 @@ class Context:
         """
         validate_file_meta(custom_meta)
         validate_file_tags(custom_tags)
-        return self._datalake.update_metadata_tags(file, custom_meta, custom_tags)
+        return self._datalake.update_metadata_tags(
+            context=self._obj,
+            file=file, 
+            custom_meta=custom_meta, 
+            custom_tags=custom_tags
+        )
 
     @wrap_log('context.run_command')
     def run_command(self, org_slug, target_id, action, metadata, payload, ttl_sec=300):
