@@ -279,7 +279,7 @@ class Datalake:
 
         return result_file
 
-    def update_metadata_tags(self, file, custom_meta, custom_tags):
+    def update_metadata_tags(self, context, file, custom_meta, custom_tags):
         bucket = file['bucket']
         file_key = file['fileKey']
 
@@ -321,6 +321,8 @@ class Datalake:
 
         file_id = str(uuid4())
 
+        pipelineConfig = context.get('pipelineConfig', {})
+
         params = {
             'Bucket': bucket,
             'CopySource': f'/{bucket}/{file_key}',
@@ -332,7 +334,17 @@ class Datalake:
                 **current_meta,
                 FIELDS['FILE_ID']: file_id,
                 FIELDS['CUSTOM_METADATA']: custom_meta_str,
-                FIELDS['CUSTOM_TAGS']: custom_tags_str
+                FIELDS['CUSTOM_TAGS']: custom_tags_str,
+
+                # from pipeline context
+                FIELDS['INTEGRATION_ID']: getOrEmptyString(context, 'pipelineId'),
+                FIELDS['INTEGRATION_NAME']: getOrEmptyString(pipelineConfig, 'pipelineName'),
+                FIELDS['PIPELINE_ID']: getOrEmptyString(context, 'pipelineId'),
+                FIELDS['PIPELINE_WORKFLOW_ID']: getOrEmptyString(context, 'workflowId'),
+                FIELDS['PIPELINE_MASTER_SCRIPT']: f"{context.get('masterScriptNamespace', '')}/{context.get('masterScriptSlug', '')}:{context.get('masterScriptVersion', '')}",
+                FIELDS['PIPELINE_TASK_EXECUTION_ID']: getOrEmptyString(context, 'taskId'),
+                FIELDS['PIPELINE_TASK_SCRIPT']: getOrEmptyString(context, 'taskScript'),
+                FIELDS['PIPELINE_TASK_SLUG']: getOrEmptyString(context, 'taskSlug')
             },
             'MetadataDirective': 'REPLACE',
             'ServerSideEncryption': 'aws:kms',
