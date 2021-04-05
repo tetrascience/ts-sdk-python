@@ -11,6 +11,9 @@ from .__util_log import Log
 from .__util_task import (extend_task_timeout, poll_task, update_task_status)
 
 
+log = Log({})
+
+
 def get_run_params(task):
   params = {
     'input': task.get('input'),
@@ -36,14 +39,7 @@ def get_run_params(task):
 
   return params
 
-log = Log({})
-
-manager = multiprocessing.Manager()
-
-last_run = manager.dict({'result': None, 'error': None})
-run_state = {'task_process': None, 'task': None}
-
-def healtcheck_worker():
+def healtcheck_worker(run_state):
   task = run_state['task']
   task_process = run_state['task_process']
 
@@ -51,27 +47,33 @@ def healtcheck_worker():
     task_id = task.get('id')
     try:
       extend_task_timeout(task)
-    except Exception as e:
+    except:
       log.log(f'Error during timeout extension -> killing task {task_id}')
       task_process.kill()
 
-  Timer(60.0, healtcheck_worker).start()
+  Timer(60.0, healtcheck_worker, [run_state]).start()
 
 
-def task_process_fn(task, last_run_shared):
+def task_process_fn(task, shared_dict):
   run_params = get_run_params(task)
   sys.path.append(run_params.get('func_dir'))
   try:
-    last_run_shared['result'] = run(**run_params)
+    shared_dict['result'] = run(**run_params)
   except:
     e = sys.exc_info()[1]
     log.log(log.generate_error(e))
-    last_run_shared['error'] = traceback.format_exc()
+    shared_dict['error'] = traceback.format_exc()
   sys.path.remove(run_params.get('func_dir'))
 
 
 if __name__ == '__main__':
-  healtcheck_worker()
+
+  manager = multiprocessing.Manager()
+
+  shared_dict = manager.dict({'result': None, 'error': None})
+  run_state = {'task_process': None, 'task': None}
+
+  healtcheck_worker(run_state)
 
   while True:
     task = poll_task()
@@ -79,11 +81,11 @@ if __name__ == '__main__':
       task_id = task.get('id')
       log.log(f'Got new task {task_id}')
 
-      last_run['result'] = None
-      last_run['error'] = None
+      shared_dict['result'] = None
+      shared_dict['error'] = None
 
       run_state['task'] = task
-      task_process = multiprocessing.Process(name=f'task-{task_id}', target=task_process_fn, args=(task, last_run))
+      task_process = multiprocessing.Process(name=f'task-{task_id}', target=task_process_fn, args=(task, shared_dict))
       run_state['task_process'] = task_process
       task_process.start()
       task_process.join()
@@ -93,12 +95,12 @@ if __name__ == '__main__':
       run_state['task_process'] = None
       run_state['task'] = None
 
-      if last_run['result'] != None:
-        update_task_status(task, last_run['result'])
+      if shared_dict['result'] != None:
+        update_task_status(task, shared_dict['result'])
       else:
         update_task_status(task, {
           'status': 'failed',
           'result': {
-            'error': last_run['error'] if last_run['error'] else 'No content returned by worker'
+            'error': shared_dict['error'] if shared_dict['error'] else 'No content returned by worker'
           }
         })
