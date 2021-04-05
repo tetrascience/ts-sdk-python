@@ -93,7 +93,6 @@ if __name__ == '__main__':
       run_state['task_process'] = None
       run_state['task'] = None
 
-      # should we skip missing return value from the task script?
       if last_run['result'] != None:
         update_task_status(task, last_run['result'])
       else:
