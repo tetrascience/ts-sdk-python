@@ -113,8 +113,7 @@ if __name__ == '__main__':
           update_task_status(task, {
             'status': 'failed',
             'result': {
-              'error': f'Invalid exit code {exitcode}',
-              ''
+              'error': f'Invalid exit code {exitcode}'
             }
           })
         continue
