@@ -25,7 +25,7 @@ def test_datalake_update_metadata_tags():
     }
     meta = {'meta_k_3': 'meta_v_3', 'meta_k_4': 'meta_v_4', 'meta_k_1': None}
     tags = ['tag3', 'tag4', 'tag4']
-    d.update_metadata_tags(f, meta, tags)
+    d.update_metadata_tags({}, f, meta, tags)
 
     d.s3.copy_object.assert_called_once()
     args, kwargs = d.s3.copy_object.call_args
@@ -49,7 +49,7 @@ def test_datalake_update_metadata_tags_if_empty():
     }
     meta = {'meta_k_3': 'meta_v_3', 'meta_k_4': 'meta_v_4', 'meta_k_1': None, 'meta_bool': True, 'meta_int': 123}
     tags = ['tag3', 'tag4', 'tag4', 123]
-    d.update_metadata_tags(f, meta, tags)
+    d.update_metadata_tags({}, f, meta, tags)
 
     d.s3.copy_object.assert_called_once()
     args, kwargs = d.s3.copy_object.call_args
