@@ -95,6 +95,29 @@ if __name__ == '__main__':
       run_state['task_process'] = None
       run_state['task'] = None
 
+      exitcode = task_process.exitcode
+      if exitcode != 0:
+        if exitcode == -9 or exitcode == 137:
+          update_task_status(task, {
+            'status': 'failed',
+            'result': {
+              'error': {
+                'message': {
+                  'text': f'Invalid exit code {exitcode}',
+                  'oomError': True
+                }
+              }
+            }
+          })
+        else:
+          update_task_status(task, {
+            'status': 'failed',
+            'result': {
+              'error': f'Invalid exit code {exitcode}'
+            }
+          })
+        continue
+
       if shared_dict['result'] != None:
         update_task_status(task, shared_dict['result'])
       else:
