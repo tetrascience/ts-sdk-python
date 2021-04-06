@@ -96,7 +96,7 @@ if __name__ == '__main__':
       run_state['task'] = None
 
       exitcode = task_process.exitcode
-      if exitcode is not None:
+      if exitcode != 0:
         if exitcode == -9 or exitcode == 137:
           update_task_status(task, {
             'status': 'failed',
@@ -117,7 +117,7 @@ if __name__ == '__main__':
               ''
             }
           })
-        break
+        continue
 
       if shared_dict['result'] != None:
         update_task_status(task, shared_dict['result'])
