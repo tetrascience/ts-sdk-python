@@ -28,7 +28,8 @@ class Fileinfo:
         url = f'{self.endpoint}/internal/{org_slug}/files/{file_id}/labels'
 
         headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-pipeline-id': context_data.get('pipelineId')
         }
         response = requests.request('POST', url, headers=headers, data=json.dumps(labels), verify=False)
 
@@ -64,7 +65,8 @@ class Fileinfo:
         url = f'{self.endpoint}/internal/{org_slug}/files/{file_id}/labels?{suffix}'
 
         headers = {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-pipeline-id': context_data.get('pipelineId')
         }
         response = requests.request('DELETE', url, headers=headers, verify=False)
 
