@@ -76,7 +76,14 @@ if __name__ == '__main__':
   healtcheck_worker(run_state)
 
   while True:
-    task = poll_task()
+    task = None
+
+    try:
+      task = poll_task()
+    except:
+      log.log('Container is stopped - exiting...')
+      break
+
     if task:
       task_id = task.get('id')
       log.log(f'Got new task {task_id}')

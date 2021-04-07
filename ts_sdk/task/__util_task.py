@@ -27,6 +27,8 @@ def poll_task():
     return generate_task_from_reponse(json.load(response))
   except urllib.error.HTTPError as e:
       print({ 'level': 'error', 'message': f'HTTPError: {e.code} for {poll_url}' })
+      if e.code == 409:
+        raise
   except urllib.error.URLError as e:
       print({ 'level': 'error', 'message': f'URLError: {e.reason} for {poll_url}' })
   except Exception as e:
