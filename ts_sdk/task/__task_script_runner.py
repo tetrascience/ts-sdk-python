@@ -339,8 +339,10 @@ class Context:
 
         new_file = self.update_metadata_tags(file, custom_meta, custom_tags)
         if labels:
-            new_file_id = self.get_file_id(new_file)
-            self.add_labels(new_file_id, labels, True)
+            self._datalake.create_labels_file(
+                target_file=new_file,
+                labels=labels
+            )
         return new_file
 
 

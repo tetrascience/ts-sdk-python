@@ -272,8 +272,7 @@ class Datalake:
 
         if len(labels) > 0:
             self.create_labels_file(
-                target_file=result_file, 
-                org_slug=org_slug,
+                target_file=result_file,
                 labels=labels
             )
 
@@ -396,7 +395,8 @@ class Datalake:
 
         return None
 
-    def create_labels_file(self, target_file, org_slug, labels):
+    def create_labels_file(self, target_file, labels):
+        head = self.get_s3_head(target_file)
         file_key = os.path.join(target_file['fileKey'], f'{target_file["fileId"]}.labels')
         params = {
             'Bucket': target_file['bucket'],
@@ -405,7 +405,7 @@ class Datalake:
                 .replace('/IDS/', '/TMP/')
                 .replace('/PROCESSED/', '/TMP/'),
             'ServerSideEncryption': 'aws:kms',
-            'SSEKMSKeyId': get_kms_key_name(org_slug),
+            'SSEKMSKeyId': head.get('SSEKMSKeyId', None),
             'ContentType': 'application/json'
         }
         response = self.s3.put_object(Body=json.dumps(labels), **params)
