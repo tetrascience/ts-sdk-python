@@ -301,10 +301,15 @@ class Context:
         return file_id
 
     @wrap_log('context.add_labels')
-    def add_labels(self, file, labels):
+    def add_labels(
+        self, 
+        file: File, 
+        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]],
+        no_propagate: bool = False
+    ):
         validate_file_labels(labels)
         file_id = self.get_file_id(file)
-        return self._fileinfo.add_labels(self._obj, file_id, labels)
+        return self._fileinfo.add_labels(self._obj, file_id, labels, no_propagate)
 
     def get_labels(self, file):
         file_id = self.get_file_id(file)
@@ -314,6 +319,30 @@ class Context:
     def delete_labels(self, file, label_ids):
         file_id = self.get_file_id(file)
         return self._fileinfo.delete_labels(self._obj, file_id, label_ids)
+
+    @wrap_log('context.add_attributes')
+    def add_attributes(
+        self, 
+        file: File, 
+        custom_meta: t.Mapping[str, str] = {},
+        custom_tags: t.Iterable[str] = [],
+        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = []
+    ) -> File:
+        file_id = self.get_file_id(file)
+
+        if not custom_meta and not custom_tags:
+            if labels:
+                self.add_labels(file_id, labels)
+                return file
+            else:
+                raise Exception('no attributes to set!')
+
+        new_file = self.update_metadata_tags(file, custom_meta, custom_tags)
+        if labels:
+            new_file_id = self.get_file_id(new_file)
+            self.add_labels(new_file_id, labels, True)
+        return new_file
+
 
 def output_response(storage, response, correlation_id):
     storage.writeObject({**response, 'id': correlation_id})
