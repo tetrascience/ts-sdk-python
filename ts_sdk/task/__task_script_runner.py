@@ -7,7 +7,6 @@ import base64
 import re
 import typing as t
 import typing_extensions as te
-import uuid
 
 from .types import FileCategory, File, ReadResult
 
@@ -20,6 +19,7 @@ from .__util_ids import create_ids_util
 from .__util_command import Command
 from .__util_fileinfo import Fileinfo
 from .__util_validation import validate_file_meta, validate_file_tags, validate_file_labels
+from .__util_uuid import generate_uuid, get_next_uuid
 
 COMPLETED = 'completed'
 FAILED = 'failed'
@@ -35,7 +35,7 @@ if 'default_print' not in __builtins__:
 def wrap_log(func_name):
     def return_wrapper(fn):
         def wrapper(*args, **kwargs):
-            id = str(uuid.uuid4())
+            id = generate_uuid()
             Context.log.log({
                 'level': 'debug',
                 'tag': LOG_TAG_PRE_FUNCTION,
@@ -337,12 +337,18 @@ class Context:
             else:
                 raise Exception('no attributes to set!')
 
-        new_file = self.update_metadata_tags(file, custom_meta, custom_tags)
         if labels:
             self._datalake.create_labels_file(
-                target_file=new_file,
+                target_file={
+                    'bucket': file['bucket'],
+                    'fileKey': file['fileKey'],
+                    'fileId': get_next_uuid()
+                },
                 labels=labels
             )
+
+        new_file = self.update_metadata_tags(file, custom_meta, custom_tags)
+        
         return new_file
 
 
