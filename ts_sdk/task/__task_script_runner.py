@@ -328,14 +328,12 @@ class Context:
         file: File, 
         custom_meta: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
-        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = [],
-        labels_options: t.Mapping[str, str] = {},
+        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = []
     ) -> File:
-        file_id = self.get_file_id(file)
 
         if not custom_meta and not custom_tags:
             if labels:
-                self.add_labels(file_id, labels, labels_options.get('no_propagate', False))
+                self.add_labels(file, labels)
                 return file
             else:
                 raise Exception('no attributes to set!')
@@ -351,7 +349,12 @@ class Context:
                 labels=labels
             )
 
-        new_file = self.update_metadata_tags(file, custom_meta, custom_tags, {'new_file_id': new_file_id})
+        new_file = self.update_metadata_tags(
+            file=file, 
+            custom_meta=custom_meta, 
+            custom_tags=custom_tags, 
+            options={'new_file_id': new_file_id}
+        )
         
         return new_file
 
