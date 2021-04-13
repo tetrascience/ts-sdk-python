@@ -3,6 +3,7 @@ import boto3
 from botocore.client import Config
 import gzip
 import re
+from uuid import uuid4
 import json
 import query_string
 import smart_open.s3
@@ -13,7 +14,6 @@ from urllib.parse import urlencode
 
 from .__util_versioned_ref import VersionedRef
 from .__util_metadata import FIELDS
-from .__util_uuid import generate_uuid
 
 WRITE_ALLOWED_CATEGORIES = ['IDS', 'PROCESSED', 'TMP']
 DISABLE_GZIP = os.environ.get('DISABLE_GZIP')
@@ -205,7 +205,7 @@ class Datalake:
 
         org_slug, source_id, raw_file_path = match.groups()
         file_key = os.path.join(org_slug, source_id, file_category, raw_file_path, file_name)
-        file_id = generate_uuid()
+        file_id = str(uuid4())
         pipelineConfig = context.get('pipelineConfig', {})
         meta = {
             # constant
@@ -252,12 +252,12 @@ class Datalake:
         }
 
         if len(labels) > 0:
-            # Labels file should exist to ensure its available when fileInfo lambda is triggered
             self.create_labels_file(
                 target_file={
+                    'type': 's3file',
                     'bucket': bucket,
                     'fileKey': file_key,
-                    'fileId': file_id,
+                    'fileId': file_id
                 },
                 labels=labels
             )
@@ -281,9 +281,10 @@ class Datalake:
             'version': response.get('VersionId', '')
         }
 
+
         return result_file
 
-    def update_metadata_tags(self, context, file, custom_meta, custom_tags):
+    def update_metadata_tags(self, context, file, custom_meta, custom_tags, options = {}):
         bucket = file['bucket']
         file_key = file['fileKey']
 
@@ -323,7 +324,7 @@ class Datalake:
         if len(custom_meta_str) + len(custom_tags_str) >= 1024 * 1.5:
             raise Exception('Metadata and tags length larger than 1.5KB')
 
-        file_id = generate_uuid()
+        file_id = options.get('new_file_id', str(uuid4()))
 
         pipelineConfig = context.get('pipelineConfig', {})
 

@@ -7,6 +7,7 @@ import base64
 import re
 import typing as t
 import typing_extensions as te
+import uuid
 
 from .types import FileCategory, File, ReadResult
 
@@ -19,7 +20,6 @@ from .__util_ids import create_ids_util
 from .__util_command import Command
 from .__util_fileinfo import Fileinfo
 from .__util_validation import validate_file_meta, validate_file_tags, validate_file_labels
-from .__util_uuid import generate_uuid, get_next_uuid
 
 COMPLETED = 'completed'
 FAILED = 'failed'
@@ -35,7 +35,7 @@ if 'default_print' not in __builtins__:
 def wrap_log(func_name):
     def return_wrapper(fn):
         def wrapper(*args, **kwargs):
-            id = generate_uuid()
+            id = str(uuid.uuid4())
             Context.log.log({
                 'level': 'debug',
                 'tag': LOG_TAG_PRE_FUNCTION,
@@ -270,7 +270,8 @@ class Context:
         self,
         file: File,
         custom_meta: t.Mapping[str, str] = {},
-        custom_tags: t.Iterable[str] = []
+        custom_tags: t.Iterable[str] = [],
+        options: t.Mapping[str, str] = {}
     ) -> File:
         """Updates file's custom metadata and tags.
         Use 'None' to remove a meta entry.
@@ -282,7 +283,8 @@ class Context:
             context=self._obj,
             file=file, 
             custom_meta=custom_meta, 
-            custom_tags=custom_tags
+            custom_tags=custom_tags,
+            options=options
         )
 
     @wrap_log('context.run_command')
@@ -326,28 +328,30 @@ class Context:
         file: File, 
         custom_meta: t.Mapping[str, str] = {},
         custom_tags: t.Iterable[str] = [],
-        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = []
+        labels: t.Iterable[t.Mapping[te.Literal['name', 'value'], str]] = [],
+        labels_options: t.Mapping[str, str] = {},
     ) -> File:
         file_id = self.get_file_id(file)
 
         if not custom_meta and not custom_tags:
             if labels:
-                self.add_labels(file_id, labels)
+                self.add_labels(file_id, labels, labels_options.get('no_propagate', False))
                 return file
             else:
                 raise Exception('no attributes to set!')
 
+        new_file_id = str(uuid.uuid4())
+
         if labels:
             self._datalake.create_labels_file(
                 target_file={
-                    'bucket': file['bucket'],
-                    'fileKey': file['fileKey'],
-                    'fileId': get_next_uuid()
+                    **file,
+                    'fileId': new_file_id
                 },
                 labels=labels
             )
 
-        new_file = self.update_metadata_tags(file, custom_meta, custom_tags)
+        new_file = self.update_metadata_tags(file, custom_meta, custom_tags, {'new_file_id': new_file_id})
         
         return new_file
 
