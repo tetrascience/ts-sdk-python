@@ -7,14 +7,14 @@ from ts_sdk.taskdev import Context, load_test_file, check_test_output
 
 def test_basic(shared_datadir):
     # set up my for local integration context
-    context = Context({ 'mosaic_password': 'secret' })
+    context = Context()
     test_input_file = load_test_file(
         context, shared_datadir / "input.json", "/input.json", file_category="RAW"
     )
     test_input = {
         'input_file': test_input_file,
         'username': 'username',
-        'passwordKey': 'mosaic_password'
+        'password': 'secret'
     }
 
     # do the conversion
