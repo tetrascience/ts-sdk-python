@@ -336,7 +336,8 @@ class Context:
                 self.add_labels(file, labels)
                 return file
             else:
-                raise Exception('no attributes to set!')
+                print({ 'level': 'error', 'message': 'no attributes provided in add_attributes()!' })
+                return file
 
         new_file_id = str(uuid.uuid4())
 
