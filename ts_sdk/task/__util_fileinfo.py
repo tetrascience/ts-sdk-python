@@ -1,6 +1,7 @@
 import json
 import requests
 from time import sleep
+from urllib.parse import urlencode
 
 class Fileinfo:
 
@@ -19,13 +20,15 @@ class Fileinfo:
             if response.status_code == 200:
                 return True
             attempt = attempt + 1
-        raise Exception('File existence check failed') 
+        print({ 'level': 'error', 'message': 'File existence check failed' })
+        return False
 
-    def add_labels(self, context_data, file_id, labels):
+    def add_labels(self, context_data, file_id, labels, no_propagate = False):
         org_slug = context_data.get('orgSlug')
         self.ensure_file_exists_in_db(file_id, org_slug)
 
-        url = f'{self.endpoint}/internal/{org_slug}/files/{file_id}/labels'
+        query_str = urlencode({'noPropagate': 'true'} if no_propagate else {})
+        url = f'{self.endpoint}/internal/{org_slug}/files/{file_id}/labels?{query_str}'
 
         headers = {
             'Content-Type': 'application/json',

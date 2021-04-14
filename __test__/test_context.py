@@ -2,6 +2,7 @@ import sys
 import os
 import datetime
 import pytest
+from unittest import TestCase
 from unittest.mock import MagicMock
 
 from ts_sdk.task.__task_script_runner import Context
@@ -10,115 +11,128 @@ class LogMock:
     def log(self, data):
         print(data)
 
-class DatalakeMock:
-    def read_file(self, *args, **kwargs):
-        return {'_func': 'datalake.read_file'}
 
-    def write_file(self, *args, **kwargs):
-        return {'_func': 'datalake.write_file'}
+class ContextMethodsTest(TestCase):
+    def setUp(self):
+        os.environ['TASK_SCRIPTS_CONTAINERS_MODE'] = 'ecs'
+        os.environ['TS_SECRET_password'] = 'secretvalue'
 
-    def write_ids(self, *args, **kwargs):
-        return {'_func': 'datalake.write_ids'}
+        self.logMock = LogMock()
+    
+        self.datalakeMock = MagicMock()
+        self.datalakeMock.get_file_name = MagicMock(return_value='filename')
+        self.datalakeMock.get_presigned_url = MagicMock(return_value='presigned_url')
 
-    def get_file_meta(self, file):
-        return {'_func': 'datalake.get_file_meta'}
+        self.idsMock = {
+            'get_ids': MagicMock(return_value={}),
+            'validate_ids': MagicMock(return_value=True)
+        }
 
-    def get_file_name(self, file):
-        return 'filename'
+        self.commandMock = MagicMock()
+        self.fileinfoMock = MagicMock()
 
-    def get_presigned_url(self, *args, **kwargs):
-        return 'presigned_url'
+        self.input_file = {
+            'type': 's3',
+            'bucket': 'bucket',
+            'fileKey': 'some/fileKey',
+            'fileId': '11111111-eeee-4444-bbbb-222222222222'
+        }
 
-    def update_metadata_tags(self, *args, **kwargs):
-        return {'_func': 'datalake.update_metadata_tags'}
+        self.pipeline_config = {
+            'ts_secret_name_password': 'some/kms/path'
+        }
 
-idsMock = {
-    'get_ids': lambda *args, **kwargs: {},
-    'validate_ids': lambda *args, **kwargs: True
-}
+        Context.log = self.logMock
+        self.ctx = Context(
+            {
+                'inputFile': self.input_file,
+                'pipelineConfig': self.pipeline_config
+            },
+            self.datalakeMock,
+            self.idsMock,
+            self.logMock,
+            self.commandMock,
+            self.fileinfoMock
+        )
 
-class CommandMock:
-    def run_command(self, *args, **kwarg):
-        return {'_func': 'command.run_commands'}
+    def tearDown(self):
+        pass
 
-class FileinfoMock:
-    def add_labels(self, *args, **kwarg):
-        return {'_func': 'fileinfo.add_labels'}
-    def get_labels(self, *args, **kwarg):
-        return {'_func': 'fileinfo.get_labels'}
-    def delete_labels(self, *args, **kwarg):
-        return {'_func': 'fileinfo.delete_labels'}
+    def test_read_file(self):
+        self.ctx.read_file(self.input_file)
+        self.datalakeMock.read_file.assert_called_once()
 
-def test_context_public_interface():
-    os.environ['TASK_SCRIPTS_CONTAINERS_MODE'] = 'ecs'
-    os.environ['TS_SECRET_password'] = 'secretvalue'
+    def test_write_file(self):
+        self.ctx.write_file('content', 'file_name', 'RAW')
+        self.datalakeMock.write_file.assert_called_once()
 
-    log = LogMock()
+    def test_get_ids(self):
+        r = self.ctx.get_ids('namespace', 'slug', 'version')
+        assert r == {}
 
-    input_file = {
-        'type': 's3',
-        'bucket': 'bucket',
-        'fileKey': 'some/fileKey'
-    }
+    def test_validate_ids(self):
+        r = self.ctx.validate_ids('data', 'namespace', 'slug', 'version')
+        assert r == True
 
-    pipeline_config = {
-        'ts_secret_name_password': 'some/kms/path'
-    }
+    def test_write_ids(self):
+        self.ctx.write_ids('content', 'file_suffix')
+        self.datalakeMock.write_ids.assert_called_once()
 
-    Context.log = log
-    c = Context(
-        {
-            'inputFile': input_file,
-            'pipelineConfig': pipeline_config
-        },
-        DatalakeMock(),
-        idsMock,
-        log,
-        CommandMock(),
-        FileinfoMock()
-    )
+    def test_get_file_name(self):
+        r = self.ctx.get_file_name(self.input_file)
+        assert r == 'filename'
 
-    r = c.read_file(input_file)
-    assert r == {'_func': 'datalake.read_file'}
+    def test_get_logger(self):
+        self.ctx.get_logger()
+        assert self.ctx.get_logger() == self.logMock
 
-    r = c.write_file('content', 'file_name', 'RAW')
-    assert r == {'_func': 'datalake.write_file'}
+    def test_get_secret_config_value(self):
+        r = self.ctx.get_secret_config_value('password')
+        assert r == 'secretvalue'
 
-    r = c.get_ids('namespace', 'slug', 'version')
-    assert r == {}
+    def test_get_presigned_url(self):
+        r = self.ctx.get_presigned_url(self.input_file)
+        assert r == 'presigned_url'
 
-    r = c.validate_ids('data', 'namespace', 'slug', 'version')
-    assert r == True
+    def test_update_metadata_tags(self):
+        self.ctx.update_metadata_tags(self.input_file, {'meta1': 'v1'}, ['t1', 't2'])
+        self.datalakeMock.update_metadata_tags.assert_called_once()
 
-    r = c.write_ids('content', 'file_suffix')
-    assert r == {'_func': 'datalake.write_ids'}
+    def test_run_command(self):
+        self.ctx.run_command('org_slug', 'target_id', 'action', {'meta1': 'v1'}, 'payload')
+        self.commandMock.run_command.assert_called_once()
 
-    r = c.get_file_name(input_file)
-    assert r == 'filename'
+    def test_add_labels(self):
+        self.ctx.add_labels(self.input_file, [{'name': 'label1', 'value': 'label-value-1'}])
+        self.fileinfoMock.add_labels.assert_called_once()
 
-    r = c.get_logger()
-    assert r == log
+    def test_get_labels(self):
+        self.ctx.get_labels(self.input_file)
+        self.fileinfoMock.get_labels.assert_called_once()
 
-    r = c.get_secret_config_value('password')
-    assert r == 'secretvalue'
+    def test_delete_labels(self):
+        self.ctx.delete_labels(self.input_file, [1,2,3])
+        self.fileinfoMock.delete_labels.assert_called_once()
 
-    r = c.get_presigned_url(input_file)
-    assert r == 'presigned_url'
+    def test_add_attributes_labels_only(self):
+        self.ctx.add_attributes(
+            self.input_file,
+            labels=[{'name': 'label-name', 'value': 'label-value'}]
+        )
+        self.fileinfoMock.add_labels.assert_called_once()
+        self.datalakeMock.create_labels_file.assert_not_called()
+        self.datalakeMock.update_metadata_tags.assert_not_called()
 
-    r = c.update_metadata_tags(input_file, {'meta1': 'v1'}, ['t1', 't2'])
-    assert r == {'_func': 'datalake.update_metadata_tags'}
-
-    r = c.run_command('org_slug', 'target_id', 'action', {'meta1': 'v1'}, 'payload')
-    assert r == {'_func': 'command.run_commands'}
-
-    label_file = {
-        'fileId': 'a9d32638-292c-4652-8309-bdd6de272690'
-    }
-    r = c.add_labels(label_file, [{'name': 'label1', 'value': 'label-value-1'}])
-    assert r == {'_func': 'fileinfo.add_labels'}
-
-    r = c.get_labels(label_file)
-    assert r == {'_func': 'fileinfo.get_labels'}
-
-    r = c.delete_labels(label_file, [1,2,3])
-    assert r == {'_func': 'fileinfo.delete_labels'}
+    def test_add_attributes_all_attrs(self):
+        self.ctx.add_attributes(
+            self.input_file, 
+            custom_meta={'m1': 'v1'},
+            custom_tags=['t1'],
+            labels=[{'name': 'label-name', 'value': 'label-value'}]
+        )
+        self.fileinfoMock.add_labels.assert_not_called()
+        self.datalakeMock.update_metadata_tags.assert_called_once()
+        self.datalakeMock.create_labels_file.assert_called_once()
+        create_labels_file_arg = self.datalakeMock.create_labels_file.call_args[1]['target_file']
+        update_metadata_tags_options_arg = self.datalakeMock.update_metadata_tags.call_args[1]['options']
+        assert create_labels_file_arg['fileId'] == update_metadata_tags_options_arg['new_file_id']

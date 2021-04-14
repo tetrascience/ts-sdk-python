@@ -60,13 +60,13 @@ def test_datalake_update_metadata_tags_if_empty():
 def test_datalake_create_labels_file():
     d = Datalake('http://localhost:4569/')
     d.s3.put_object = MagicMock(return_value={})
+    d.s3.head_object = MagicMock(return_value={})
     d.create_labels_file(
         target_file={
             'fileKey': 'demo/abc/RAW/input.json',
             'fileId': 'fileId',
             'bucket': 'labels-test-bucket'
         },
-        org_slug='demo',
         labels=[{'name': 'label1', 'value': 'label-value-1'}]
     )
     d.s3.put_object.assert_called_once()

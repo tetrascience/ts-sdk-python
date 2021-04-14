@@ -251,6 +251,17 @@ class Datalake:
             'ContentEncoding': 'gzip'
         }
 
+        if len(labels) > 0:
+            self.create_labels_file(
+                target_file={
+                    'type': 's3file',
+                    'bucket': bucket,
+                    'fileKey': file_key,
+                    'fileId': file_id
+                },
+                labels=labels
+            )
+
         if hasattr(content, 'read'):
             response = S3FileobjUploader(
                 self.s3, content, params, { 'disable_gzip': DISABLE_GZIP }).upload()
@@ -270,16 +281,10 @@ class Datalake:
             'version': response.get('VersionId', '')
         }
 
-        if len(labels) > 0:
-            self.create_labels_file(
-                target_file=result_file, 
-                org_slug=org_slug,
-                labels=labels
-            )
 
         return result_file
 
-    def update_metadata_tags(self, context, file, custom_meta, custom_tags):
+    def update_metadata_tags(self, context, file, custom_meta, custom_tags, options = {}):
         bucket = file['bucket']
         file_key = file['fileKey']
 
@@ -319,7 +324,7 @@ class Datalake:
         if len(custom_meta_str) + len(custom_tags_str) >= 1024 * 1.5:
             raise Exception('Metadata and tags length larger than 1.5KB')
 
-        file_id = str(uuid4())
+        file_id = options.get('new_file_id', str(uuid4()))
 
         pipelineConfig = context.get('pipelineConfig', {})
 
@@ -396,7 +401,8 @@ class Datalake:
 
         return None
 
-    def create_labels_file(self, target_file, org_slug, labels):
+    def create_labels_file(self, target_file, labels):
+        head = self.get_s3_head(target_file)
         file_key = os.path.join(target_file['fileKey'], f'{target_file["fileId"]}.labels')
         params = {
             'Bucket': target_file['bucket'],
@@ -405,7 +411,7 @@ class Datalake:
                 .replace('/IDS/', '/TMP/')
                 .replace('/PROCESSED/', '/TMP/'),
             'ServerSideEncryption': 'aws:kms',
-            'SSEKMSKeyId': get_kms_key_name(org_slug),
+            'SSEKMSKeyId': head.get('SSEKMSKeyId', None),
             'ContentType': 'application/json'
         }
         response = self.s3.put_object(Body=json.dumps(labels), **params)
