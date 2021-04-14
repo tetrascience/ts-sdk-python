@@ -20,7 +20,8 @@ class Fileinfo:
             if response.status_code == 200:
                 return True
             attempt = attempt + 1
-        raise Exception('File existence check failed') 
+        print({ 'level': 'error', 'message': 'File existence check failed' })
+        return False
 
     def add_labels(self, context_data, file_id, labels, no_propagate = False):
         org_slug = context_data.get('orgSlug')
