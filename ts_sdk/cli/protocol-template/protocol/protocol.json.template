@@ -24,7 +24,7 @@
   }, {
     "slug": "password",
     "description": "description about the config",
-    "name": "password",
+    "name": "password name",
     "type": "secret",
     "required": true
   }]
