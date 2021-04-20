@@ -14,7 +14,14 @@ jobs:
         - pip install pipenv
         - pipenv install --dev
       script:
-        - pipenv run pytest -s --cov=ts_sdk --cov-branch
+        - pipenv run pytest -s --cov=ts_sdk --cov-branch ./__tests__/unit
+    - stage: test
+      name: "Integration tests"
+      install:
+        - pip install pipenv
+        - pipenv install --dev
+      script:
+        - pipenv run pytest -s ./__tests__/integration
     - stage: test
       name: "ts-sdk cli tests"
       install: skip
