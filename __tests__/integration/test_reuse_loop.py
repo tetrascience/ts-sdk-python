@@ -65,25 +65,7 @@ class ReuseLoopTest(TestCase):
             'ORCHESTRATOR_ENDPOINT': 'http://orchestrator.local'
         })
 
-        from ts_sdk.task.run_reuse_loop import main
-        self.mainFn = main
-
-    def tearDown(self):
-        pass
-        
-    @responses.activate
-    def test_main_should_exit_poll_409(self):
-        responses.add(
-            responses.POST, 
-            'http://orchestrator.local/task/poll',
-            json={}, 
-            status=409
-        )
-        self.mainFn()
-
-    @responses.activate
-    def test_main_next(self):
-        tasks = [
+        self.tasks = [
             {
                 'id': 'task_id',
                 'data': {
@@ -91,6 +73,7 @@ class ReuseLoopTest(TestCase):
                     'secrets': {},
                     'input': {},
                     'context': {
+                        'taskId': 'task_id',
                         'orgSlug': 'test',
                         'inputFile': self.input_file,
                         'pipelineId': '1298e6a3-abc7-4c96-984f-376700c35f83',
@@ -110,6 +93,20 @@ class ReuseLoopTest(TestCase):
                 }
             }
         ]
+
+        from ts_sdk.task.run_reuse_loop import main
+        self.mainFn = main
+
+    def tearDown(self):
+        pass
+
+    def _poll_callback(self, r):
+        if len(self.tasks):
+            return 200, {}, json.dumps(self.tasks.pop())
+        return 409, {}, '{}'
+        
+    @responses.activate
+    def test_main_all_in_one(self):
         responses.add(
             responses.POST, 
             'http://orchestrator.local/task/task_id/update-status',
@@ -119,6 +116,8 @@ class ReuseLoopTest(TestCase):
         responses.add_callback(
             responses.POST, 
             'http://orchestrator.local/task/poll',
-            callback=lambda r: (200 if len(tasks) else 409, {}, json.dumps(tasks.pop() if len(tasks) else {}))
+            callback=self._poll_callback
         )
-        self.mainFn()
+        shared_dict = self.mainFn()
+        assert shared_dict['result'] == {'status': 'completed', 'result': True}
+        assert shared_dict['error'] == None

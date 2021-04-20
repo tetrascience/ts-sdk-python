@@ -2,7 +2,7 @@
     "functions": [
         {
             "slug": "test",
-            "function": "main.test_fn"
+            "function": "main.test_all"
         }
     ]
 }

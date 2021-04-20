@@ -141,5 +141,7 @@ def main():
   if run_state['healtcheck_timer'] and run_state['healtcheck_timer'].is_alive():
     run_state['healtcheck_timer'].cancel()
 
+  return shared_dict
+
 if __name__ == '__main__':
   main()
