@@ -6,6 +6,7 @@ import pytest
 from unittest import TestCase
 from unittest.mock import MagicMock
 
+import boto3
 import responses
 
 
@@ -13,6 +14,21 @@ class ReuseLoopTest(TestCase):
 
     def setUp(self):
         s3_endpoint = 'http://localhost:4569/'
+        datalake_bucket = 'datalake_bucket'
+
+        self.input_file = {
+            'bucket': datalake_bucket,
+            'fileKey': 'test/abc/RAW/input.json'
+        }
+
+        self.s3 = boto3.client('s3', endpoint_url=s3_endpoint)
+        self.s3.put_object(
+            Body=json.dumps({}),
+            Bucket=datalake_bucket,
+            Key=self.input_file['fileKey'],
+            ContentType='application/json'
+        )
+
         os.environ.update({
             'PLATFORM_PROPS_HASH': 'PLATFORM_PROPS_HASH',
             'TASK_GROUP_HASH': 'TASK_GROUP_HASH',
@@ -71,7 +87,7 @@ class ReuseLoopTest(TestCase):
                     'input': {},
                     'context': {
                         'orgSlug': 'test',
-                        'inputFile': {},
+                        'inputFile': self.input_file,
                         'pipelineId': '1298e6a3-abc7-4c96-984f-376700c35f83',
                         'taskScript': 'common/test-task:v1.0.0',
                         'workflowId': '0b8a3a9c-299a-45ac-b877-05b262e6caf6',
