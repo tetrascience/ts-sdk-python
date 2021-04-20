@@ -62,7 +62,9 @@ class ReuseLoopTest(TestCase):
 
             'COMMAND_ENDPOINT': 'http://command.local',
             'FILEINFO_ENDPOINT': 'http://fileinfo.local',
-            'ORCHESTRATOR_ENDPOINT': 'http://orchestrator.local'
+            'ORCHESTRATOR_ENDPOINT': 'http://orchestrator.local',
+
+            'SECRET_pass_word': 'secret-password-value',
         })
 
         self.tasks = [
@@ -71,7 +73,12 @@ class ReuseLoopTest(TestCase):
                 'data': {
                     'workflow_id': 'workflow_id',
                     'secrets': {},
-                    'input': {},
+                    'input': {
+                        'inputFile': self.input_file,
+                        'pass': {
+                            'ssm': '/development/diagnostic/org-secrets/pass-word'
+                        }
+                    },
                     'context': {
                         'taskId': 'task_id',
                         'orgSlug': 'test',

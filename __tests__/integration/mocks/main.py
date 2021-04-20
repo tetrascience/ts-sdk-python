@@ -13,8 +13,12 @@ def test_file_operations(input, context: task.Context):
     result = context.read_file(file)
     assert result['body'] == b'test-content', 'read_file content differs from provided in write_file'
 
+def test_secrets(input, context: task.Context):
+    secret_value = context.resolve_secret(input.get('pass'))
+    assert secret_value == 'secret-password-value', f'test_secrets failed. Got {secret_value}'
 
 def test_all(input, context: task.Context):
     test_log(input, context)
     test_file_operations(input, context)
+    test_secrets(input, context)
     return True
