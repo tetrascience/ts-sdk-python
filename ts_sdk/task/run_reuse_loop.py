@@ -88,8 +88,6 @@ def main():
       break
 
     if task:
-      print(task)
-      exit
       task_id = task.get('id')
       log.log(f'Got new task {task_id}')
 
