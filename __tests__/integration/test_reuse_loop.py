@@ -21,7 +21,13 @@ class ReuseLoopTest(TestCase):
             'fileKey': 'test/abc/RAW/input.json'
         }
 
-        self.s3 = boto3.client('s3', endpoint_url=s3_endpoint)
+        self.s3 = boto3.client(
+            's3', 
+            endpoint_url=s3_endpoint,
+            aws_access_key_id='123', 
+            aws_secret_access_key='abc',
+            region_name='us-east-2'
+        )
         self.s3.put_object(
             Body=json.dumps({}),
             Bucket=datalake_bucket,
@@ -35,7 +41,6 @@ class ReuseLoopTest(TestCase):
             'CONTAINER_ID': 'CONTAINER_ID',
 
             'ENV': 'test',
-            'AWS_REGION': 'test-region-2',
             'DISABLE_GZIP': 'true',
 
             'TASK_SCRIPTS_CONTAINERS_MODE': 'ecs',
