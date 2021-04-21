@@ -34,8 +34,6 @@ jobs:
         - pipenv install --dev
       script:
         - pipenv run pytest -s ./__tests__/integration
-      after_success:
-        - docker kill fake_s3
     - stage: test
       name: "ts-sdk cli tests"
       install: skip
