@@ -77,7 +77,8 @@ class ReuseLoopTest(TestCase):
                         'inputFile': self.input_file,
                         'pass': {
                             'ssm': '/development/diagnostic/org-secrets/pass-word'
-                        }
+                        },
+                        'newFileName': 'new_file_name'
                     },
                     'context': {
                         'taskId': 'task_id',

@@ -8,7 +8,7 @@ def test_log(input, context: task.Context):
     })
 
 def test_file_operations(input, context: task.Context):
-    file = context.write_file(b'test-content', 'write_file_name', 'PROCESSED')  
+    file = context.write_file(b'test-content', input.get('newFileName'), 'PROCESSED')  
     file = context.add_attributes(file, {'k1': 'v1'}, ['t1'], [{'name': 'label_name', 'value': 'label_value'}])
     result = context.read_file(file)
     assert result['body'] == b'test-content', 'read_file content differs from provided in write_file'
@@ -16,6 +16,7 @@ def test_file_operations(input, context: task.Context):
 def test_secrets(input, context: task.Context):
     secret_value = context.resolve_secret(input.get('pass'))
     assert secret_value == 'secret-password-value', f'test_secrets failed. Got {secret_value}'
+    assert context.resolve_secret('anything') == 'anything'
 
 def test_all(input, context: task.Context):
     test_log(input, context)
