@@ -14,7 +14,26 @@ jobs:
         - pip install pipenv
         - pipenv install --dev
       script:
-        - pipenv run pytest -s --cov=ts_sdk --cov-branch
+        - pipenv run pytest -s --cov=ts_sdk --cov-branch ./__tests__/unit
+    - stage: test
+      name: "Integration tests"
+      env:
+        global:
+          - FAKE_S3_DIR=$HOME/fakes3
+          - AWS_ACCESS_KEY_ID=aws-key
+          - AWS_SECRET_ACCESS_KEY=aws-secret
+          - AWS_REGION=us-east-2
+      services:
+        - docker
+      before_install:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - docker pull tetrascience/ts-fakes3
+        - docker run --name fake_s3 -v $FAKE_S3_DIR:/fakes3_root -p 4569:4569 -d tetrascience/ts-fakes3
+      install:
+        - pip install pipenv
+        - pipenv install --dev
+      script:
+        - pipenv run pytest -s ./__tests__/integration
     - stage: test
       name: "ts-sdk cli tests"
       install: skip

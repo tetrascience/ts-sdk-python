@@ -1,0 +1,8 @@
+{
+    "functions": [
+        {
+            "slug": "test",
+            "function": "main.test_all"
+        }
+    ]
+}

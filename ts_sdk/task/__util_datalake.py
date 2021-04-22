@@ -11,6 +11,7 @@ import shutil
 import tempfile
 import io
 from urllib.parse import urlencode
+import logging
 
 from .__util_versioned_ref import VersionedRef
 from .__util_metadata import FIELDS
@@ -114,6 +115,7 @@ class S3FileobjUploader:
 
 class Datalake:
     def __init__(self, endpoint):
+        #boto3.set_stream_logger(name='botocore', level=logging.DEBUG)
         if endpoint:
             self.s3 = boto3.client(
                 's3', endpoint_url=endpoint,
@@ -411,7 +413,7 @@ class Datalake:
                 .replace('/IDS/', '/TMP/')
                 .replace('/PROCESSED/', '/TMP/'),
             'ServerSideEncryption': 'aws:kms',
-            'SSEKMSKeyId': head.get('SSEKMSKeyId', None),
+            'SSEKMSKeyId': head.get('SSEKMSKeyId', ''),
             'ContentType': 'application/json'
         }
         response = self.s3.put_object(Body=json.dumps(labels), **params)

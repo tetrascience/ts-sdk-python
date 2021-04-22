@@ -8,7 +8,7 @@ from time import sleep, time
 
 from .__task_script_runner import run
 from .__util_log import Log
-from .__util_task import (extend_task_timeout, poll_task, update_task_status)
+from .__util_task import extend_task_timeout, poll_task, update_task_status, ContainerStoppedException
 
 
 log = Log({})
@@ -40,6 +40,7 @@ def get_run_params(task):
   return params
 
 def healtcheck_worker(run_state):
+  run_state['healtcheck_timer'] = None
   task = run_state['task']
   task_process = run_state['task_process']
 
@@ -51,7 +52,9 @@ def healtcheck_worker(run_state):
       log.log(f'Error during timeout extension -> killing task {task_id}')
       task_process.kill()
 
-  Timer(60.0, healtcheck_worker, [run_state]).start()
+  healtcheck_timer = Timer(60.0, healtcheck_worker, [run_state])
+  run_state['healtcheck_timer'] = healtcheck_timer
+  healtcheck_timer.start()
 
 
 def task_process_fn(task, shared_dict):
@@ -66,12 +69,12 @@ def task_process_fn(task, shared_dict):
   sys.path.remove(run_params.get('func_dir'))
 
 
-if __name__ == '__main__':
+def main():
 
   manager = multiprocessing.Manager()
 
   shared_dict = manager.dict({'result': None, 'error': None})
-  run_state = {'task_process': None, 'task': None}
+  run_state = {'task_process': None, 'task': None, 'healtcheck_timer': None}
 
   healtcheck_worker(run_state)
 
@@ -80,7 +83,7 @@ if __name__ == '__main__':
 
     try:
       task = poll_task()
-    except:
+    except ContainerStoppedException:
       log.log('Container is stopped - exiting...')
       break
 
@@ -134,3 +137,11 @@ if __name__ == '__main__':
             'error': shared_dict['error'] if shared_dict['error'] else 'No content returned by worker'
           }
         })
+
+  if run_state['healtcheck_timer'] and run_state['healtcheck_timer'].is_alive():
+    run_state['healtcheck_timer'].cancel()
+
+  return shared_dict
+
+if __name__ == '__main__':
+  main()
