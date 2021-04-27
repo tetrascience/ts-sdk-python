@@ -51,7 +51,7 @@ class Command:
 
             time_elapsed = 0
             while time_elapsed <= ttl_sec:
-                time.sleep(5)
+                time.sleep(1)
                 time_elapsed += 5
                 command_response = requests.request("GET", command_url, headers=command_headers, verify=False)
                 print("Polling for command status")
