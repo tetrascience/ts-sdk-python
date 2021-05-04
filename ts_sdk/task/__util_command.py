@@ -64,7 +64,7 @@ class Command:
                     elif command_status == "CREATED" or command_status == "PENDING" or command_status == "PROCESSING":
                         continue
                     else:
-                        raise Exception("Command status is " + command_status)
+                        raise Exception(command.get("responseBody"))
 
             if time_elapsed >= ttl_sec:
                 print('TTL for command has expired')
